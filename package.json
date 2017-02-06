@@ -1,0 +1,19 @@
+{
+  "name": "node_or_tools",
+  "version": "0.0.1",
+  "description": "Native module for the or-tools TSP / VRP solvers",
+  "keywords": [
+    "addon",
+    "native",
+    "module"
+  ],
+  "author": "Daniel J. Hofmann",
+  "license": "MIT",
+  "main": "./build/Release/node_or_tools",
+  "scripts": {
+    "test": "node index"
+  },
+  "dependencies": {
+    "nan": "^2.5"
+  }
+}
