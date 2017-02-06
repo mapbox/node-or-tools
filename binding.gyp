@@ -19,7 +19,7 @@
             ],
             "conditions": [
                 ["OS != 'win'",{
-                    "cflags_cc": ["-Wall -Wextra -pedantic -std=c++11"],
+                    "cflags_cc": ["-std=c++11 -Wall -Wextra -Wno-sign-compare -Wno-deprecated -Wno-ignored-qualifiers"],
                     "cflags_cc!": ["-fno-exceptions", "-fno-rtti"],
                     "libraries": ["-lortools"],
                 }]

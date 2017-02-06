@@ -18,6 +18,8 @@ Note: binary distributions will most likely work, too. Adapt library and include
         --OR_TOOLS_LIBRARY_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/lib \
         --OR_TOOLS_INCLUDE_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/src
 
+    export LD_LIBRARY_PATH="/home/daniel/node-or-tools/third_party/or-tools-5.1/lib:$LD_LIBRARY_PATH"
+
     npm test
 
 
