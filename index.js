@@ -1,15 +1,15 @@
 'use strict';
 
 var node_or_tools = require('.');
-var assert = require('assert');
-var util = require('util')
 
 if (require.main === module) {
   console.log('self-testing module');
 
-  var solver = new node_or_tools.Solver();
+  var TSP = new node_or_tools.TSP();
+  var VRP = new node_or_tools.VRP();
 
-  console.log(solver.TSP());
+  console.log(TSP.Solve());
+  console.log(VRP.Solve());
 }
 
 module.exports = node_or_tools;

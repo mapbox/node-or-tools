@@ -15,7 +15,9 @@
             },
             "target_name": "node_or_tools",
             "sources": [
-                "main.cc"
+                "main.cc",
+                "tsp.cc",
+                "vrp.cc",
             ],
             "conditions": [
                 ["OS != 'win'",{
