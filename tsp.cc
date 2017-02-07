@@ -32,21 +32,50 @@ NAN_METHOD(TSP::New) {
 }
 
 NAN_METHOD(TSP::Solve) {
-  auto* const self = Nan::ObjectWrap::Unwrap<TSP>(info.Holder());
-  (void)self;
+  if (info.Length() != 1 || !info[0]->IsObject())
+    return Nan::ThrowTypeError("Single object argument expected: TSP options");
+
+  auto opts = info[0].As<v8::Object>();
+
+  auto maybeNumNodes = Nan::Get(opts, Nan::New("numNodes").ToLocalChecked());
+  auto maybeCostFunc = Nan::Get(opts, Nan::New("costFunction").ToLocalChecked());
+
+  auto numNodesOk = !maybeNumNodes.IsEmpty() && maybeNumNodes.ToLocalChecked()->IsNumber();
+  auto costFuncOk = !maybeCostFunc.IsEmpty() && maybeCostFunc.ToLocalChecked()->IsFunction();
+
+  if (!numNodesOk || !costFuncOk)
+    return Nan::ThrowTypeError("TSP options expects 'numNodes' (Number) and 'CostFunc' (Function)");
+
+  // TODO: overflow
+  auto numNodes = Nan::To<int>(maybeNumNodes.ToLocalChecked()).FromJust();
+  Nan::Callback costFunc(maybeCostFunc.ToLocalChecked().As<v8::Function>());
 
   // See routing_parameters.proto and routing_enums.proto
   auto modelParams = ort::RoutingModel::DefaultModelParameters();
 
-  const auto numNodes = 10;
   const auto numVehicles = 1;
   const auto vehicleDepot = ort::RoutingModel::NodeIndex{0};
 
   ort::RoutingModel model{numNodes, numVehicles, vehicleDepot, modelParams};
 
   struct Cost {
-    int64 operator()(ort::RoutingModel::NodeIndex from, ort::RoutingModel::NodeIndex to) const { return 10; }
-  } const costs;
+    int64 operator()(ort::RoutingModel::NodeIndex from, ort::RoutingModel::NodeIndex to) const {
+      auto fromIdx = from.value();
+      auto toIdx = to.value();
+
+      const auto argc = 2;
+      v8::Local<v8::Value> argv[argc] = {Nan::New(fromIdx), Nan::New(toIdx)};
+
+      auto cost = callback.Call(argc, argv);
+
+      // TODO: throw on !cost->IsNumber()
+
+      // TODO: overflow
+      return Nan::To<int>(cost).FromJust();
+    }
+
+    Nan::Callback& callback;
+  } const costs{costFunc};
 
   const auto costEvaluator = NewPermanentCallback(&costs, &Cost::operator());
   model.SetArcCostEvaluatorOfAllVehicles(costEvaluator);
