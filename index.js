@@ -9,7 +9,7 @@ if (require.main === module) {
 
   var solver = new node_or_tools.Solver();
 
-  console.log(solver.tsp());
+  console.log(solver.TSP());
 }
 
 module.exports = node_or_tools;

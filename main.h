@@ -12,7 +12,7 @@ public:
 private:
   static NAN_METHOD(New);
 
-  static NAN_METHOD(tsp);
+  static NAN_METHOD(TSP);
 
   static Nan::Persistent<v8::Function>& constructor();
 

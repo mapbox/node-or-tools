@@ -2,6 +2,8 @@
 
 #include "main.h"
 
+namespace ort = operations_research;
+
 NAN_MODULE_INIT(Solver::Init) {
   const auto whoami = Nan::New("Solver").ToLocalChecked();
 
@@ -9,7 +11,7 @@ NAN_MODULE_INIT(Solver::Init) {
   fnTp->SetClassName(whoami);
   fnTp->InstanceTemplate()->SetInternalFieldCount(1);
 
-  SetPrototypeMethod(fnTp, "tsp", tsp);
+  SetPrototypeMethod(fnTp, "TSP", TSP);
 
   const auto fn = Nan::GetFunction(fnTp).ToLocalChecked();
   constructor().Reset(fn);
@@ -30,30 +32,35 @@ NAN_METHOD(Solver::New) {
   }
 }
 
-NAN_METHOD(Solver::tsp) {
+NAN_METHOD(Solver::TSP) {
   auto* const self = Nan::ObjectWrap::Unwrap<Solver>(info.Holder());
   (void)self;
 
-  using Model = operations_research::RoutingModel;
-
   // See routing_parameters.proto and routing_enums.proto
-  auto modelParams = Model::DefaultModelParameters();
+  auto modelParams = ort::RoutingModel::DefaultModelParameters();
 
   const auto numNodes = 10;
   const auto numVehicles = 1;
-  const auto vehicleDepot = Model::NodeIndex{0};
+  const auto vehicleDepot = ort::RoutingModel::NodeIndex{0};
 
-  Model model{numNodes, numVehicles, vehicleDepot, modelParams};
+  ort::RoutingModel model{numNodes, numVehicles, vehicleDepot, modelParams};
 
   struct Cost {
-    int64 operator()(Model::NodeIndex from, Model::NodeIndex to) const { return 10; }
+    int64 operator()(ort::RoutingModel::NodeIndex from, ort::RoutingModel::NodeIndex to) const { return 10; }
   } const costs;
 
   const auto costEvaluator = NewPermanentCallback(&costs, &Cost::operator());
   model.SetArcCostEvaluatorOfAllVehicles(costEvaluator);
 
   // See routing_parameters.proto and routing_enums.proto
-  auto searchParams = Model::DefaultSearchParameters();
+  auto searchParams = ort::RoutingModel::DefaultSearchParameters();
+
+  // TODO: Make configurable from outside?
+  auto firstSolutionStrategy = ort::FirstSolutionStrategy::AUTOMATIC;
+  auto metaHeuristic = ort::LocalSearchMetaheuristic::AUTOMATIC;
+
+  searchParams.set_first_solution_strategy(firstSolutionStrategy);
+  searchParams.set_local_search_metaheuristic(metaHeuristic);
   searchParams.set_time_limit_ms(1000);
 
   // TODO: Nan::AsyncWorker
@@ -65,7 +72,7 @@ NAN_METHOD(Solver::tsp) {
   const auto cost = solution->ObjectiveValue();
   (void)cost; // TODO: use
 
-  std::vector<std::vector<Model::NodeIndex>> routes;
+  std::vector<std::vector<ort::RoutingModel::NodeIndex>> routes;
   model.AssignmentToRoutes(*solution, &routes);
 
   auto jsRoutes = Nan::New<v8::Array>(routes.size());
