@@ -37,16 +37,19 @@ NAN_METHOD(TSP::Solve) {
 
   auto opts = info[0].As<v8::Object>();
 
+  auto maybeTimeLimit = Nan::Get(opts, Nan::New("timeLimit").ToLocalChecked());
   auto maybeNumNodes = Nan::Get(opts, Nan::New("numNodes").ToLocalChecked());
   auto maybeCostFunc = Nan::Get(opts, Nan::New("costFunction").ToLocalChecked());
 
+  auto timeLimitOk = !maybeTimeLimit.IsEmpty() && maybeTimeLimit.ToLocalChecked()->IsNumber();
   auto numNodesOk = !maybeNumNodes.IsEmpty() && maybeNumNodes.ToLocalChecked()->IsNumber();
   auto costFuncOk = !maybeCostFunc.IsEmpty() && maybeCostFunc.ToLocalChecked()->IsFunction();
 
-  if (!numNodesOk || !costFuncOk)
-    return Nan::ThrowTypeError("TSP options expects 'numNodes' (Number) and 'CostFunc' (Function)");
+  if (!timeLimitOk || !numNodesOk || !costFuncOk)
+    return Nan::ThrowTypeError("TSP options expects 'timeLimit' (Number), 'numNodes' (Number), 'CostFunc' (Function)");
 
   // TODO: overflow
+  auto timeLimit = Nan::To<int>(maybeTimeLimit.ToLocalChecked()).FromJust();
   auto numNodes = Nan::To<int>(maybeNumNodes.ToLocalChecked()).FromJust();
   Nan::Callback costFunc(maybeCostFunc.ToLocalChecked().As<v8::Function>());
 
@@ -89,7 +92,7 @@ NAN_METHOD(TSP::Solve) {
 
   searchParams.set_first_solution_strategy(firstSolutionStrategy);
   searchParams.set_local_search_metaheuristic(metaHeuristic);
-  searchParams.set_time_limit_ms(1000);
+  searchParams.set_time_limit_ms(timeLimit);
 
   // TODO: Nan::AsyncWorker
   const auto* solution = model.SolveWithParameters(searchParams);

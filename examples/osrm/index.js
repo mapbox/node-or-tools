@@ -19,6 +19,7 @@ osrm.table({coordinates: locations}, (err, resp) => {
   const TSP = new Solver.TSP();
 
   const solverOpts = {
+    timeLimit: 1000,
     numNodes: resp.durations.length,
     costFunction: (s, t) => { return resp.durations[s][t]; }
   };
