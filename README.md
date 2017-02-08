@@ -14,7 +14,8 @@ Note: binary distributions will most likely work, too. Adapt library and include
 
 ### Quick Start
 
-    npm install \
+    env npm install \
+        --jobs=$(nproc)
         --OR_TOOLS_LIBRARY_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/lib \
         --OR_TOOLS_INCLUDE_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/src
 

@@ -18,12 +18,12 @@ osrm.table({coordinates: locations}, (err, resp) => {
 
   const TSP = new Solver.TSP();
 
-  const SolverOpts = {
+  const solverOpts = {
     numNodes: resp.durations.length,
     costFunction: (s, t) => { return resp.durations[s][t]; }
   };
 
-  const routes = TSP.Solve(SolverOpts);
+  const routes = TSP.Solve(solverOpts);
 
   for (const route of routes) {
     const depot = locations[0]; // depot is always 0 at the moment; configurable
