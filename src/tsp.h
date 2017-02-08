@@ -3,9 +3,15 @@
 
 #include <nan.h>
 
+#include "matrix.h"
+
+#include <memory>
+
 class TSP : public Nan::ObjectWrap {
 public:
   static NAN_MODULE_INIT(Init);
+
+  using CostMatrix = Matrix<std::int64_t>;
 
 private:
   static NAN_METHOD(New);
@@ -16,15 +22,9 @@ private:
 
   // Wrapped Object
 
-  TSP() = default;
+  TSP(CostMatrix costs);
 
-  // Non-Copyable
-  TSP(const TSP&) = delete;
-  TSP& operator=(const TSP&) = delete;
-
-  // Non-Moveable
-  TSP(TSP&&) = delete;
-  TSP& operator=(TSP&&) = delete;
+  std::shared_ptr<const CostMatrix> costs;
 };
 
 #endif

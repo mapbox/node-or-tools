@@ -15,14 +15,19 @@ if (require.main === module) {
 
   // Traveling Salesman Problem
 
-  const TSP = new node_or_tools.TSP();
-
-  const TSPOpts = {
+  const solverOpts = {
     numNodes: 10,
     costFunction: cost
   };
 
-  const solution = TSP.Solve(TSPOpts);
+  const TSP = new node_or_tools.TSP(solverOpts);
+
+  const searchOpts = {
+    timeLimit: 1000,
+    depotNode: 0
+  };
+
+  const solution = TSP.Solve(searchOpts);
   console.log(solution);
 
 

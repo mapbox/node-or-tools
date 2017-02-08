@@ -30,7 +30,7 @@ Note: binary distributions will most likely work, too. Adapt library and include
 - [GYP](https://gyp.gsrc.io)
 - Manual: [TSP](https://acrogenesis.com/or-tools/documentation/user_manual/manual/TSP.html) / [VRP](https://acrogenesis.com/or-tools/documentation/user_manual/manual/VRP.html)
 - [Examples](https://github.com/google/or-tools/tree/v5.1/examples/cpp)
-- [Reference](https://developers.google.com/optimization/reference/) (Main entry: `constraint_solveri/routing.h`)
+- [Reference](https://developers.google.com/optimization/reference/) (Main entry: `constraint_solver/routing.h`)
 - Interface [routing.h](https://github.com/google/or-tools/blob/v5.1/src/constraint_solver/routing.h#L14)
 
 ### License

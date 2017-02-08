@@ -12,22 +12,29 @@ const locations = [
   [7.419891, 43.737461]
 ];
 
+const depotIndex = 0
+
+
 osrm.table({coordinates: locations}, (err, resp) => {
   if (err)
     return;
 
-  const TSP = new Solver.TSP();
-
   const solverOpts = {
-    timeLimit: 1000,
     numNodes: resp.durations.length,
     costFunction: (s, t) => { return resp.durations[s][t]; }
   };
 
-  const routes = TSP.Solve(solverOpts);
+  const TSP = new Solver.TSP(solverOpts);
+
+  const searchOpts = {
+    timeLimit: 1000,
+    depotNode: depotIndex
+  };
+
+  const routes = TSP.Solve(searchOpts);
 
   for (const route of routes) {
-    const depot = locations[0]; // depot is always 0 at the moment; configurable
+    const depot = locations[depotIndex];
 
     console.log(depot);
 
