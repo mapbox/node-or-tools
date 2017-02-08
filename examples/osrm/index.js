@@ -31,16 +31,18 @@ osrm.table({coordinates: locations}, (err, resp) => {
     depotNode: depotIndex
   };
 
-  const routes = TSP.Solve(searchOpts);
+  TSP.Solve(searchOpts, (err, routes) => {
+    if (err) return;
 
-  for (const route of routes) {
-    const depot = locations[depotIndex];
+    for (const route of routes) {
+      const depot = locations[depotIndex];
 
-    console.log(depot);
+      console.log(depot);
 
-    for (const node of route) {
-      console.log(locations[node]);
+      for (const node of route) {
+        console.log(locations[node]);
+      }
     }
-  }
+  });
 
 });

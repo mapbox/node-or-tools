@@ -27,8 +27,10 @@ if (require.main === module) {
     depotNode: 0
   };
 
-  const solution = TSP.Solve(searchOpts);
-  console.log(solution);
+  TSP.Solve(searchOpts, (err, solution) => {
+    if (err) return;
+    console.log(solution);
+  });
 
 
   // Vehicle Routing Problem
