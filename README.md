@@ -1,5 +1,7 @@
 # node-or-tools
 
+[![Continuous Integration](https://travis-ci.org/mapbox/node-or-tools.svg?branch=master)](https://travis-ci.org/mapbox/node-or-tools)
+
 NodeJS or-tools TSP / VRP solver bindings.
 
 Requires `libortools.so` to be installed.

@@ -1,0 +1,44 @@
+language: generic
+sudo: required
+dist: trusty
+
+matrix:
+  fast_finish: true
+
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6', 'nodejs', 'npm']
+      env: CCOMPILER='gcc-6' CXXCOMPILER='g++-6'
+
+    - os: linux
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5', 'nodejs', 'npm']
+      env: CCOMPILER='gcc-5' CXXCOMPILER='g++-5'
+
+    - os: linux
+      addons:
+        apt:
+          sources: ['llvm-toolchain-precise-3.8']
+          packages: ['clang-3.8', 'nodejs', 'npm']
+      env: CCOMPILER='clang-3.8' CXXCOMPILER='clang++-3.8'
+
+before_install:
+  - export CC=${CCOMPILER} CXX=${CXXCOMPILER}
+  - sudo update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
+  # TODO: put into scripts/deps.sh dispatch based on macOS and Ubuntu 14, 16
+  - wget https://github.com/google/or-tools/releases/download/v5.1/or-tools_Ubuntu-14.04-64bit_v5.1.4045.tar.gz
+  - echo '8388932222ca8deb45b57a88916650c06521c3b2572eafc31f32dbc0c706b4ce or-tools_Ubuntu-14.04-64bit_v5.1.4045.tar.gz' | sha256sum -c
+  - tar xf or-tools_Ubuntu-14.04-64bit_v5.1.4045.tar.gz
+  - pushd or-tools_Ubuntu-14.04-64bit_v5.1.4047
+  - export CPLUS_INCLUDE_PATH="$(pwd)/include"
+  - export LD_LIBRARY_PATH="$(pwd)/lib"
+  - patch -p0 < ../scripts/bitcast.patch  # required until https://github.com/google/or-tools/pull/318 is merged
+  - popd
+
+install:
+  - npm install --OR_TOOLS_LIBRARY_DIR="$LD_LIBRARY_PATH" --OR_TOOLS_INCLUDE_DIR="$CPLUS_INCLUDE_PATH"
