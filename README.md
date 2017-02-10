@@ -1,30 +1,21 @@
 # node-or-tools
 
-[![Continuous Integration](https://travis-ci.org/mapbox/node-or-tools.svg?branch=master)](https://travis-ci.org/mapbox/node-or-tools)
+[![Build Status](https://travis-ci.com/mapbox/node-or-tools.svg?token=hLpUd9oZwpjSs5JzfqFa&branch=master)](https://travis-ci.com/mapbox/node-or-tools)
 
 NodeJS or-tools TSP / VRP solver bindings.
 
-Requires `libortools.so` to be installed.
-Tested with or-tools v5.1.
+### Depends
 
-### Dependencies
+ - c++11 capable compile
+ - node-gyp deps
 
-- Grab v5.1.tar.gz source release from https://github.com/google/or-tools/releases
-- Follow build instructions https://developers.google.com/optimization/introduction/installing
+### Installing
 
-Note: binary distributions will most likely work, too. Adapt library and include dirs below appropriately.
+    npm install
 
-### Quick Start
-
-    env npm install \
-        --jobs=$(nproc)
-        --OR_TOOLS_LIBRARY_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/lib \
-        --OR_TOOLS_INCLUDE_DIR=/home/daniel/node-or-tools/third_party/or-tools-5.1/src
-
-    export LD_LIBRARY_PATH="/home/daniel/node-or-tools/third_party/or-tools-5.1/lib:$LD_LIBRARY_PATH"
+### Run tests
 
     npm test
-
 
 ### References
 
