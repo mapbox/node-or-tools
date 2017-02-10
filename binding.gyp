@@ -1,31 +1,52 @@
 {
-    "variables": {
-        "OR_TOOLS_INCLUDE_DIR%": "",
-        "OR_TOOLS_LIBRARY_DIR%": ""
-    },
+    "includes": [ "common.gypi" ],
     "targets": [
         {
+          'target_name': 'action_before_build',
+          'type': 'none',
+          'hard_dependency': 1,
+          'actions': [
+            {
+              'action_name': 'install-deps',
+              'inputs': ['./install-deps.sh'],
+              'outputs': ['./mason_packages'],
+              'action': ['./install-deps.sh']
+            }
+          ]
+        },
+        {
+            "target_name": "node_or_tools",
+            'dependencies': [ 'action_before_build' ],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "<@(OR_TOOLS_INCLUDE_DIR)"
+                "./mason_packages/.link/include",
+                "./mason_packages/.link/include/or-tools"
             ],
             "link_settings": {
                 "libraries": ["-lortools"],
-                "library_dirs": ["<@(OR_TOOLS_LIBRARY_DIR)"]
+                "library_dirs": [
+                  "<(module_root_dir)/mason_packages/.link/lib"
+                ]
             },
-            "target_name": "node_or_tools",
             "sources": [
                 "src/main.cc",
                 "src/tsp.cc",
                 "src/vrp.cc",
             ],
-            "conditions": [
-                ["OS != 'win'",{
-                    "cflags_cc": ["-std=c++11 -Wall -Wextra -Wno-sign-compare -Wno-deprecated -Wno-ignored-qualifiers"],
-                    "cflags_cc!": ["-fno-exceptions", "-fno-rtti"],
-                    "libraries": ["-lortools"],
-                }]
+            'ldflags': [
+                '-Wl,-z,now'
             ],
+            'xcode_settings': {
+                'OTHER_LDFLAGS':[
+                  '-Wl,-bind_at_load'
+                ],
+                'GCC_ENABLE_CPP_RTTI': 'YES',
+                'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
+                'MACOSX_DEPLOYMENT_TARGET':'10.8',
+                'CLANG_CXX_LIBRARY': 'libc++',
+                'CLANG_CXX_LANGUAGE_STANDARD':'c++11',
+                'GCC_VERSION': 'com.apple.compilers.llvm.clang.1_0'
+            }
         },
     ],
 }
