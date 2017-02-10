@@ -36,6 +36,11 @@
             'ldflags': [
                 '-Wl,-z,now'
             ],
+            "conditions": [
+                ["OS == 'linux'",{
+                    'ldflags': ["-Wl,-z,origin -Wl,-rpath=\$$ORIGIN"]
+                }]
+            ],
             'xcode_settings': {
                 'OTHER_LDFLAGS':[
                   '-Wl,-bind_at_load'

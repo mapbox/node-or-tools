@@ -7,7 +7,7 @@ addons:
     packages: [ 'libstdc++-4.9-dev','clang-3.8' ]
 
 install:
-  - npm install
+  - npm install --verbose
 
 script:
   - npm test
