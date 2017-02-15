@@ -3,6 +3,12 @@
     'default_configuration': 'Release',
     'cflags_cc' : [
       '-std=c++11',
+      '-Wall',
+      '-Wextra',
+      '-Wno-sign-compare',
+      '-Wno-deprecated',
+      '-Wno-ignored-qualifiers',
+      '-Wno-unused-local-typedefs',
     ],
     'cflags_cc!': ['-std=gnu++0x','-fno-rtti', '-fno-exceptions'],
     'configurations': {
