@@ -3,15 +3,14 @@
 
 #include <nan.h>
 
-#include "matrix.h"
+#include "adaptors.h"
+#include "types.h"
 
 #include <memory>
 
 class TSP : public Nan::ObjectWrap {
 public:
   static NAN_MODULE_INIT(Init);
-
-  using CostMatrix = Matrix<std::int64_t>;
 
 private:
   static NAN_METHOD(New);

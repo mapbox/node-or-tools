@@ -1,41 +1,72 @@
 var node_or_tools = require('.');
 
-if (require.main === module) {
-  console.log('self-testing module');
 
+// Traveling Salesman Problem
+function tsp() {
+  var costs = function (from, to) { return from + to; };
 
-  // Arc costs callback for the solvers.
-  // Args: `from` and `to` indices (Number)
-  // Returns: costs for traversing arc (Number)
-  // Note: indices are [0, numNodes - 1]
-  var cost = function (from, to) { return from + to; };
-
-
-  // Traveling Salesman Problem
-
-  var solverOpts = {
+  var tspSolverOpts = {
     numNodes: 10,
-    costFunction: cost
+    costs: costs
   };
 
-  var TSP = new node_or_tools.TSP(solverOpts);
+  var TSP = new node_or_tools.TSP(tspSolverOpts);
 
-  var searchOpts = {
-    timeLimit: 1000,
+  var tspSearchOpts = {
+    computeTimeLimit: 1000,
     depotNode: 0
   };
 
-  TSP.Solve(searchOpts, function (err, solution) {
-    if (err) return;
+  TSP.Solve(tspSearchOpts, function (err, solution) {
+    if (err) return console.log(err);
     console.log(solution);
   });
+}
 
 
-  // Vehicle Routing Problem
+// Vehicle Routing Problem with Time Windows
+function vrp() {
+  var Seconds = function (v) { return v; };
+  var Minutes = function (v) { return Seconds(v * 60); };
+  var Hours = function (v) { return Minutes(v * 60); }
 
-  var VRP = new node_or_tools.VRP();
-  var VRPOpts = {}
-  VRP.Solve(VRPOpts);
+  var depotNode = 0;
+
+  var costs = function (from, to) { return from + to; };
+  var durations = function (from, to) { return Minutes(5) + Minutes(10 * from + 10 * to); };
+  var timeWindows = function (at) { return [Hours(0), Hours(5)]; };
+  var demands = function (from, to) { return from == depotNode ? 0 : 1; }
+
+  var vrpSolverOpts = {
+    numNodes: 10,
+    costs: costs,
+    durations: durations,
+    timeWindows: timeWindows,
+    demands: demands
+  };
+
+  var VRP = new node_or_tools.VRP(vrpSolverOpts);
+
+  var vrpSearchOpts = {
+    computeTimeLimit: 1000,
+    numVehicles: 3,
+    depotNode: depotNode,
+    timeHorizon: Hours(9),
+    vehicleCapacity: 3
+  };
+
+  VRP.Solve(vrpSearchOpts, function (err, solution) {
+    if (err) return console.log(err);
+    console.log(solution);
+  });
+}
+
+
+if (require.main === module) {
+  console.log('self-testing module');
+
+  tsp();
+  vrp();
 }
 
 module.exports = node_or_tools;

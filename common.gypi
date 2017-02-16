@@ -2,7 +2,7 @@
   'target_defaults': {
     'default_configuration': 'Release',
     'cflags_cc' : [
-      '-std=c++11',
+      '-std=c++14',
       '-Wall',
       '-Wextra',
     ],

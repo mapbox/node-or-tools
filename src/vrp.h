@@ -3,6 +3,11 @@
 
 #include <nan.h>
 
+#include "adaptors.h"
+#include "types.h"
+
+#include <memory>
+
 class VRP : public Nan::ObjectWrap {
 public:
   static NAN_MODULE_INIT(Init);
@@ -16,7 +21,7 @@ private:
 
   // Wrapped Object
 
-  VRP() = default;
+  VRP(CostMatrix costs, DurationMatrix durations, TimeWindows timeWindows, DemandMatrix demands);
 
   // Non-Copyable
   VRP(const VRP&) = delete;
@@ -25,6 +30,15 @@ private:
   // Non-Moveable
   VRP(VRP&&) = delete;
   VRP& operator=(VRP&&) = delete;
+
+  // (s, t) arc costs we optimize, e.g. duration or distance.
+  std::shared_ptr<const CostMatrix> costs;
+  // (s, t) arc travel durations: service time for s plus travel time from s to t.
+  std::shared_ptr<const DurationMatrix> durations;
+  // Time windows keyed by node for when deliveries are possible at node.
+  std::shared_ptr<const TimeWindows> timeWindows;
+  // Demands at node s continuing to node t.
+  std::shared_ptr<const DemandMatrix> demands;
 };
 
 #endif
