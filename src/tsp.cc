@@ -2,6 +2,8 @@
 
 #include "tsp.h"
 
+#include <cstddef>
+
 #include <utility>
 #include <vector>
 
@@ -128,12 +130,12 @@ NAN_METHOD(TSP::Solve) {
 
       auto jsRoutes = Nan::New<v8::Array>(routes.size());
 
-      for (int i = 0; i < routes.size(); ++i) {
+      for (std::size_t i = 0; i < routes.size(); ++i) {
         const auto& route = routes[i];
 
         auto jsNodes = Nan::New<v8::Array>(route.size());
 
-        for (int j = 0; j < route.size(); ++j)
+        for (std::size_t j = 0; j < route.size(); ++j)
           (void)Nan::Set(jsNodes, j, Nan::New<v8::Number>(route[j].value()));
 
         (void)Nan::Set(jsRoutes, i, jsNodes);
