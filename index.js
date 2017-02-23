@@ -1,4 +1,5 @@
 var node_or_tools = require('.');
+var util = require('util')
 
 
 // Traveling Salesman Problem
@@ -57,7 +58,7 @@ function vrp() {
 
   VRP.Solve(vrpSearchOpts, function (err, solution) {
     if (err) return console.log(err);
-    console.log(solution);
+    console.log(util.inspect(solution, {showHidden: false, depth: null}));
   });
 }
 

@@ -10,6 +10,12 @@
 #include <utility>
 #include <vector>
 
+struct RoutingSolution {
+  int64 cost;
+  std::vector<std::vector<NodeIndex>> routes;
+  std::vector<std::vector<Interval>> times;
+};
+
 struct VRPWorker final : Nan::AsyncWorker {
   using Base = Nan::AsyncWorker;
 
@@ -92,29 +98,71 @@ struct VRPWorker final : Nan::AsyncWorker {
     if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
       return SetErrorMessage("Unable to find a solution");
 
-    // const auto cost = assignment->ObjectiveValue();
+    const auto cost = assignment->ObjectiveValue();
 
+    std::vector<std::vector<NodeIndex>> routes;
     model.AssignmentToRoutes(*assignment, &routes);
+
+    std::vector<std::vector<Interval>> times;
+
+    for (const auto& route : routes) {
+      std::vector<int> routeCapacities;
+      std::vector<Interval> routeTimes;
+
+      for (const auto& node : route) {
+        const auto index = model.NodeToIndex(node);
+
+        const auto* timeVar = timeDimension.CumulVar(index);
+
+        const auto earliest = assignment->Min(timeVar);
+        const auto latest = assignment->Max(timeVar);
+
+        routeTimes.push_back(Interval{(int)earliest, (int)latest});
+      }
+
+      times.push_back(std::move(routeTimes));
+    }
+
+    solution = RoutingSolution{cost, std::move(routes), std::move(times)};
   }
 
   void HandleOKCallback() override {
     Nan::HandleScope scope;
 
-    auto jsRoutes = Nan::New<v8::Array>(routes.size());
+    auto jsSolution = Nan::New<v8::Object>();
 
-    for (std::size_t i = 0; i < routes.size(); ++i) {
-      const auto& route = routes[i];
+    auto jsCost = Nan::New<v8::Number>(solution.cost);
+    auto jsRoutes = Nan::New<v8::Array>(solution.routes.size());
+    auto jsTimes = Nan::New<v8::Array>(solution.times.size());
+
+    for (std::size_t i = 0; i < solution.routes.size(); ++i) {
+      const auto& route = solution.routes[i];
+      const auto& times = solution.times[i];
 
       auto jsNodes = Nan::New<v8::Array>(route.size());
+      auto jsNodeTimes = Nan::New<v8::Array>(times.size());
 
-      for (std::size_t j = 0; j < route.size(); ++j)
-        (void)Nan::Set(jsNodes, j, Nan::New<v8::Number>(route[j].value()));
+      for (std::size_t j = 0; j < route.size(); ++j) {
+        Nan::Set(jsNodes, j, Nan::New<v8::Number>(route[j].value()));
 
-      (void)Nan::Set(jsRoutes, i, jsNodes);
+        auto jsInterval = Nan::New<v8::Array>(2);
+
+        Nan::Set(jsInterval, 0, Nan::New<v8::Number>(times[j].start));
+        Nan::Set(jsInterval, 1, Nan::New<v8::Number>(times[j].stop));
+
+        Nan::Set(jsNodeTimes, j, jsInterval);
+      }
+
+      Nan::Set(jsRoutes, i, jsNodes);
+      Nan::Set(jsTimes, i, jsNodeTimes);
     }
 
+    Nan::Set(jsSolution, Nan::New("cost").ToLocalChecked(), jsCost);
+    Nan::Set(jsSolution, Nan::New("routes").ToLocalChecked(), jsRoutes);
+    Nan::Set(jsSolution, Nan::New("times").ToLocalChecked(), jsTimes);
+
     const auto argc = 2u;
-    v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoutes};
+    v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsSolution};
 
     callback->Call(argc, argv);
   }
@@ -133,7 +181,7 @@ struct VRPWorker final : Nan::AsyncWorker {
   RoutingSearchParameters searchParams;
 
   // Stores solution until we can translate back to v8 objects
-  std::vector<std::vector<NodeIndex>> routes;
+  RoutingSolution solution;
 };
 
 #endif
