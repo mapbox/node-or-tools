@@ -12,6 +12,16 @@ NodeJS or-tools TSP and VRP solver bindings.
 
     npm test
 
+### Undefined Symbols
+
+If your C++ compiler and stdlib are quite recent they will default to a new ABI.
+Mason packages are still built against an old ABI.
+If you see `undefined symbols` errors force the stdlib to use the old ABI by setting:
+
+    export CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0"
+
+and re-build the project.
+
 ### References
 
 Routing Interfaces
