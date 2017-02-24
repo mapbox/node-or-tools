@@ -26,9 +26,9 @@ struct VRPWorker final : Nan::AsyncWorker {
             Nan::Callback* callback,                          //
             const RoutingModelParameters& modelParams_,       //
             const RoutingSearchParameters& searchParams_,     //
-            int numNodes,                                     //
-            int numVehicles,                                  //
-            int vehicleDepot,                                 //
+            int numNodes_,                                    //
+            int numVehicles_,                                 //
+            int vehicleDepot_,                                //
             int timeHorizon_,                                 //
             int vehicleCapacity_)                             //
       : Base(callback),
@@ -38,6 +38,9 @@ struct VRPWorker final : Nan::AsyncWorker {
         timeWindows{std::move(timeWindows_)},
         demands{std::move(demands_)},
         // Search settings
+        numNodes{numNodes_},
+        numVehicles{numVehicles_},
+        vehicleDepot{vehicleDepot_},
         timeHorizon{timeHorizon_},
         vehicleCapacity{vehicleCapacity_},
         // Setup model
@@ -69,8 +72,6 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     model.AddDimension(durationCallback, timeHorizon, timeHorizon, /*fix_start_cumul_to_zero=*/true, kDimensionTime);
     const auto& timeDimension = model.GetDimensionOrDie(kDimensionTime);
-
-    const auto numNodes = timeWindows->size();
 
     for (auto node = 0; node < numNodes; ++node) {
       const auto interval = timeWindows->at(node);
@@ -173,6 +174,9 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::shared_ptr<const TimeWindows> timeWindows;
   std::shared_ptr<const DemandMatrix> demands;
 
+  int numNodes;
+  int numVehicles;
+  int vehicleDepot;
   int timeHorizon;
   int vehicleCapacity;
 
