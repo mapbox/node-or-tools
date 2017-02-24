@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/mapbox/node-or-tools.svg?token=hLpUd9oZwpjSs5JzfqFa&branch=master)](https://travis-ci.com/mapbox/node-or-tools)
 
-NodeJS or-tools TSP and VRP solver bindings.
+NodeJS or-tools TSP and VRP solver bindings. See [API.md](API.md) for documentation.
 
 ### Installing
 
