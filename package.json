@@ -11,9 +11,12 @@
   "license": "MIT",
   "main": "./build/Release/node_or_tools",
   "scripts": {
-    "test": "node index"
+    "test": "tap -Rspec test/*.js"
   },
   "dependencies": {
     "nan": "^2.5"
+  },
+  "devDependencies": {
+    "tap": "^10.2"
   }
 }

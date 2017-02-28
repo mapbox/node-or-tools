@@ -3,3 +3,5 @@ third_party
 build
 node_modules
 npm-debug.log
+.nyc*
+coverage

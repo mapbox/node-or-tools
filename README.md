@@ -8,9 +8,13 @@ NodeJS or-tools TSP and VRP solver bindings. See [API.md](API.md) for documentat
 
     npm install
 
-### Run tests
+### Tests
 
     npm test
+
+See
+- [npmjs.com/package/tap](https://www.npmjs.com/package/tap)
+- [node-tap.org](http://www.node-tap.org)
 
 ### Undefined Symbols
 
