@@ -8,7 +8,7 @@
 struct VRPSolverParams {
   VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-  int numNodes;
+  std::int32_t numNodes;
 
   v8::Local<v8::Function> costFunc;
   v8::Local<v8::Function> durationFunc;
@@ -19,11 +19,11 @@ struct VRPSolverParams {
 struct VRPSearchParams {
   VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-  int computeTimeLimit;
-  int numVehicles;
-  int depotNode;
-  int timeHorizon;
-  int vehicleCapacity;
+  std::int64_t computeTimeLimit;
+  std::int32_t numVehicles;
+  std::int32_t depotNode;
+  std::int64_t timeHorizon;
+  std::int32_t vehicleCapacity;
 
   v8::Local<v8::Function> callback;
 };
@@ -56,8 +56,7 @@ VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
                              " 'timeWindows' (Function),"
                              " 'demands' (Function)"};
 
-  // TODO: overflow
-  numNodes = Nan::To<int>(maybeNumNodes.ToLocalChecked()).FromJust();
+  numNodes = Nan::To<std::int32_t>(maybeNumNodes.ToLocalChecked()).FromJust();
   costFunc = maybeCostFunc.ToLocalChecked().As<v8::Function>();
   durationFunc = maybeDurationFunc.ToLocalChecked().As<v8::Function>();
   timeWindowFunc = maybeTimeWindowFunc.ToLocalChecked().As<v8::Function>();
@@ -90,12 +89,11 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
                              " 'timeHorizon' (Number),"
                              " 'vehicleCapacity' (Number)"};
 
-  // TODO: overflow
-  computeTimeLimit = Nan::To<int>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
-  numVehicles = Nan::To<int>(maybeNumVehicles.ToLocalChecked()).FromJust();
-  depotNode = Nan::To<int>(maybeDepotNode.ToLocalChecked()).FromJust();
-  timeHorizon = Nan::To<int>(maybeTimeHorizon.ToLocalChecked()).FromJust();
-  vehicleCapacity = Nan::To<int>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
+  computeTimeLimit = Nan::To<std::int64_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
+  numVehicles = Nan::To<std::int32_t>(maybeNumVehicles.ToLocalChecked()).FromJust();
+  depotNode = Nan::To<std::int32_t>(maybeDepotNode.ToLocalChecked()).FromJust();
+  timeHorizon = Nan::To<std::int64_t>(maybeTimeHorizon.ToLocalChecked()).FromJust();
+  vehicleCapacity = Nan::To<std::int32_t>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
 
   callback = info[1].As<v8::Function>();
 }

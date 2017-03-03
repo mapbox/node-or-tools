@@ -7,12 +7,12 @@
 template <typename T> class Vector {
 public:
   Vector() = default;
-  Vector(int n) { data.resize(n); }
+  Vector(std::int64_t n) { data.resize(n); }
 
-  int size() const { return data.size(); }
+  std::int64_t size() const { return data.size(); }
 
-  T& at(int x) { return data.at(x); }
-  const T& at(int x) const { return data.at(x); }
+  T& at(std::int64_t x) { return data.at(x); }
+  const T& at(std::int64_t x) const { return data.at(x); }
 
 private:
   std::vector<T> data;

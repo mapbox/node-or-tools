@@ -23,13 +23,16 @@ template <typename Adaptor> auto makeCallback(const Adaptor& adaptor) {
 }
 
 // Caches user provided Function(s, t) -> Number into Matrix
-template <typename Matrix> inline auto makeMatrixFromFunction(int n, v8::Local<v8::Function> fn) {
+template <typename Matrix> inline auto makeMatrixFromFunction(std::int64_t n, v8::Local<v8::Function> fn) {
+  if (n < 0)
+    throw std::runtime_error{"Negative dimension"};
+
   Nan::Callback callback{fn};
 
   Matrix matrix{n};
 
-  for (auto fromIdx = 0; fromIdx < n; ++fromIdx) {
-    for (auto toIdx = 0; toIdx < n; ++toIdx) {
+  for (std::int32_t fromIdx = 0; fromIdx < n; ++fromIdx) {
+    for (std::int32_t toIdx = 0; toIdx < n; ++toIdx) {
       const auto argc = 2u;
       v8::Local<v8::Value> argv[argc] = {Nan::New(fromIdx), Nan::New(toIdx)};
 
@@ -38,7 +41,7 @@ template <typename Matrix> inline auto makeMatrixFromFunction(int n, v8::Local<v
       if (!cost->IsNumber())
         throw std::runtime_error{"Expected function signature: Number fn(Number from, Number to)"};
 
-      matrix.at(fromIdx, toIdx) = Nan::To<int>(cost).FromJust();
+      matrix.at(fromIdx, toIdx) = Nan::To<std::int64_t>(cost).FromJust();
     }
   }
 
@@ -46,12 +49,15 @@ template <typename Matrix> inline auto makeMatrixFromFunction(int n, v8::Local<v
 }
 
 // Caches user provided Function(node) -> [start, stop] into TimeWindows
-inline auto makeTimeWindowsFromFunction(int n, v8::Local<v8::Function> fn) {
+inline auto makeTimeWindowsFromFunction(std::int64_t n, v8::Local<v8::Function> fn) {
+  if (n < 0)
+    throw std::runtime_error{"Negative size"};
+
   Nan::Callback callback{fn};
 
   TimeWindows timeWindows{n};
 
-  for (auto atIdx = 0; atIdx < n; ++atIdx) {
+  for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
     const auto argc = 1u;
     v8::Local<v8::Value> argv[argc] = {Nan::New(atIdx)};
 
@@ -71,7 +77,7 @@ inline auto makeTimeWindowsFromFunction(int n, v8::Local<v8::Function> fn) {
     if (!start->IsNumber() || !stop->IsNumber())
       throw std::runtime_error{"Expected interval start and stop of type Number"};
 
-    Interval out{Nan::To<int>(start).FromJust(), Nan::To<int>(stop).FromJust()};
+    Interval out{Nan::To<std::int64_t>(start).FromJust(), Nan::To<std::int64_t>(stop).FromJust()};
     timeWindows.at(atIdx) = std::move(out);
   }
 

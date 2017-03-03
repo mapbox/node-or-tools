@@ -63,8 +63,8 @@ NAN_METHOD(VRP::Solve) try {
   searchParams.set_local_search_metaheuristic(metaHeuristic);
   searchParams.set_time_limit_ms(userParams.computeTimeLimit);
 
-  const auto numNodes = self->costs->dim();
-  const auto numVehicles = userParams.numVehicles;
+  const std::int32_t numNodes = self->costs->dim();
+  const std::int32_t numVehicles = userParams.numVehicles;
 
   auto* worker = new VRPWorker{self->costs,                            //
                                self->durations,                        //

@@ -9,16 +9,21 @@ template <typename T> class Matrix {
 
 public:
   Matrix() = default;
-  Matrix(int n_) : n{n_} { data.resize(n * n); }
+  Matrix(std::int64_t n_) : n{n_} {
+    if (n_ < 0)
+      throw std::runtime_error{"Negative dimension"};
 
-  int dim() const { return n; }
-  int size() const { return dim() * dim(); }
+    data.resize(n * n);
+  }
 
-  T& at(int x, int y) { return data.at(y * n + x); }
-  const T& at(int x, int y) const { return data.at(y * n + x); }
+  std::int64_t dim() const { return n; }
+  std::int64_t size() const { return dim() * dim(); }
+
+  T& at(std::int64_t x, std::int64_t y) { return data.at(y * n + x); }
+  const T& at(std::int64_t x, std::int64_t y) const { return data.at(y * n + x); }
 
 private:
-  int n;
+  std::int64_t n;
   std::vector<T> data;
 };
 

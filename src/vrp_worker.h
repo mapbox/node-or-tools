@@ -11,7 +11,7 @@
 #include <vector>
 
 struct RoutingSolution {
-  int64 cost;
+  std::int64_t cost;
   std::vector<std::vector<NodeIndex>> routes;
   std::vector<std::vector<Interval>> times;
 };
@@ -26,11 +26,11 @@ struct VRPWorker final : Nan::AsyncWorker {
             Nan::Callback* callback,                          //
             const RoutingModelParameters& modelParams_,       //
             const RoutingSearchParameters& searchParams_,     //
-            int numNodes_,                                    //
-            int numVehicles_,                                 //
-            int vehicleDepot_,                                //
-            int timeHorizon_,                                 //
-            int vehicleCapacity_)                             //
+            std::int32_t numNodes_,                           //
+            std::int32_t numVehicles_,                        //
+            std::int32_t vehicleDepot_,                       //
+            std::int64_t timeHorizon_,                        //
+            std::int32_t vehicleCapacity_)                    //
       : Base(callback),
         // Cached vectors and matrices
         costs{std::move(costs_)},
@@ -73,7 +73,7 @@ struct VRPWorker final : Nan::AsyncWorker {
     model.AddDimension(durationCallback, timeHorizon, timeHorizon, /*fix_start_cumul_to_zero=*/true, kDimensionTime);
     const auto& timeDimension = model.GetDimensionOrDie(kDimensionTime);
 
-    for (auto node = 0; node < numNodes; ++node) {
+    for (std::int32_t node = 0; node < numNodes; ++node) {
       const auto interval = timeWindows->at(node);
       timeDimension.CumulVar(node)->SetRange(interval.start, interval.stop);
       // At the moment we only support a single interval for time windows.
@@ -107,7 +107,6 @@ struct VRPWorker final : Nan::AsyncWorker {
     std::vector<std::vector<Interval>> times;
 
     for (const auto& route : routes) {
-      std::vector<int> routeCapacities;
       std::vector<Interval> routeTimes;
 
       for (const auto& node : route) {
@@ -118,7 +117,7 @@ struct VRPWorker final : Nan::AsyncWorker {
         const auto earliest = assignment->Min(timeVar);
         const auto latest = assignment->Max(timeVar);
 
-        routeTimes.push_back(Interval{(int)earliest, (int)latest});
+        routeTimes.push_back(Interval{earliest, latest});
       }
 
       times.push_back(std::move(routeTimes));
@@ -174,11 +173,11 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::shared_ptr<const TimeWindows> timeWindows;
   std::shared_ptr<const DemandMatrix> demands;
 
-  int numNodes;
-  int numVehicles;
-  int vehicleDepot;
-  int timeHorizon;
-  int vehicleCapacity;
+  std::int32_t numNodes;
+  std::int32_t numVehicles;
+  std::int32_t vehicleDepot;
+  std::int64_t timeHorizon;
+  std::int32_t vehicleCapacity;
 
   RoutingModel model;
   RoutingModelParameters modelParams;

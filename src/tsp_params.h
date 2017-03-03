@@ -8,7 +8,7 @@
 struct TSPSolverParams {
   TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-  int numNodes;
+  std::int32_t numNodes;
 
   v8::Local<v8::Function> costFunc;
 };
@@ -16,8 +16,8 @@ struct TSPSolverParams {
 struct TSPSearchParams {
   TSPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-  int computeTimeLimit;
-  int depotNode;
+  std::int64_t computeTimeLimit;
+  std::int32_t depotNode;
 
   v8::Local<v8::Function> callback;
 };
@@ -39,8 +39,7 @@ TSPSolverParams::TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   if (!numNodesOk || !costFuncOk)
     throw std::runtime_error{"SolverOptions expects 'numNodes' (Number), 'costs' (Function)"};
 
-  // TODO: overflow
-  numNodes = Nan::To<int>(maybeNumNodes.ToLocalChecked()).FromJust();
+  numNodes = Nan::To<std::int32_t>(maybeNumNodes.ToLocalChecked()).FromJust();
   costFunc = maybeCostFunc.ToLocalChecked().As<v8::Function>();
 }
 
@@ -59,9 +58,8 @@ TSPSearchParams::TSPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   if (!computeTimeLimitOk || !depotNodeOk)
     throw std::runtime_error{"SearchOptions expects 'computeTimeLimit' (Number), 'depotNode' (Number)"};
 
-  // TODO: overflow
-  computeTimeLimit = Nan::To<int>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
-  depotNode = Nan::To<int>(maybeDepotNode.ToLocalChecked()).FromJust();
+  computeTimeLimit = Nan::To<std::int64_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
+  depotNode = Nan::To<std::int32_t>(maybeDepotNode.ToLocalChecked()).FromJust();
   callback = info[1].As<v8::Function>();
 }
 

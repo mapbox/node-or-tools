@@ -61,8 +61,8 @@ NAN_METHOD(TSP::Solve) try {
   searchParams.set_local_search_metaheuristic(metaHeuristic);
   searchParams.set_time_limit_ms(userParams.computeTimeLimit);
 
-  const auto numNodes = self->costs->dim();
-  const auto numVehicles = 1; // Always one for TSP
+  const std::int32_t numNodes = self->costs->dim();
+  const std::int32_t numVehicles = 1; // Always one for TSP
 
   auto* worker = new TSPWorker{self->costs,                            //
                                new Nan::Callback{userParams.callback}, //
