@@ -19,10 +19,10 @@ struct VRPSolverParams {
 struct VRPSearchParams {
   VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-  std::int64_t computeTimeLimit;
+  std::int32_t computeTimeLimit;
   std::int32_t numVehicles;
   std::int32_t depotNode;
-  std::int64_t timeHorizon;
+  std::int32_t timeHorizon;
   std::int32_t vehicleCapacity;
 
   v8::Local<v8::Function> callback;
@@ -89,10 +89,10 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
                              " 'timeHorizon' (Number),"
                              " 'vehicleCapacity' (Number)"};
 
-  computeTimeLimit = Nan::To<std::int64_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
+  computeTimeLimit = Nan::To<std::int32_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
   numVehicles = Nan::To<std::int32_t>(maybeNumVehicles.ToLocalChecked()).FromJust();
   depotNode = Nan::To<std::int32_t>(maybeDepotNode.ToLocalChecked()).FromJust();
-  timeHorizon = Nan::To<std::int64_t>(maybeTimeHorizon.ToLocalChecked()).FromJust();
+  timeHorizon = Nan::To<std::int32_t>(maybeTimeHorizon.ToLocalChecked()).FromJust();
   vehicleCapacity = Nan::To<std::int32_t>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
 
   callback = info[1].As<v8::Function>();

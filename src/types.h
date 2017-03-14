@@ -18,20 +18,20 @@ template <typename T, typename Tag> struct NewType {
   };
 };
 
-using CostMatrix = NewType<Matrix<std::int64_t>, struct CostMatrixTag>::Type;
-using DurationMatrix = NewType<Matrix<std::int64_t>, struct DurationMatrixTag>::Type;
-using DemandMatrix = NewType<Matrix<std::int64_t>, struct DemandMatrixTag>::Type;
+using CostMatrix = NewType<Matrix<std::int32_t>, struct CostMatrixTag>::Type;
+using DurationMatrix = NewType<Matrix<std::int32_t>, struct DurationMatrixTag>::Type;
+using DemandMatrix = NewType<Matrix<std::int32_t>, struct DemandMatrixTag>::Type;
 
 struct Interval {
   Interval() : start{0}, stop{0} {}
 
-  Interval(std::int64_t start_, std::int64_t stop_) : start{start_}, stop{stop_} {
+  Interval(std::int32_t start_, std::int32_t stop_) : start{start_}, stop{stop_} {
     if (start < 0 || stop < 0 || stop < start)
       throw std::runtime_error{"Negative intervals not supported"};
   }
 
-  std::int64_t start;
-  std::int64_t stop;
+  std::int32_t start;
+  std::int32_t stop;
 };
 
 using TimeWindows = NewType<Vector<Interval>, struct TimeWindowsTag>::Type;

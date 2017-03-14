@@ -29,7 +29,7 @@ struct VRPWorker final : Nan::AsyncWorker {
             std::int32_t numNodes_,                           //
             std::int32_t numVehicles_,                        //
             std::int32_t vehicleDepot_,                       //
-            std::int64_t timeHorizon_,                        //
+            std::int32_t timeHorizon_,                        //
             std::int32_t vehicleCapacity_)                    //
       : Base(callback),
         // Cached vectors and matrices
@@ -54,7 +54,8 @@ struct VRPWorker final : Nan::AsyncWorker {
     const auto demandsOk = demands->dim() == numNodes;
 
     if (!costsOk || !durationsOk || !timeWindowsOk || !demandsOk)
-      throw std::runtime_error{"Expected costs, durations, timeWindow and demand sizes to match numNodes"};
+      throw std::runtime_error{"Expected costs, durations, timeWindow and "
+                               "demand sizes to match numNodes"};
   }
 
   void Execute() override {
@@ -70,16 +71,20 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     const static auto kDimensionTime = "time";
 
-    model.AddDimension(durationCallback, timeHorizon, timeHorizon, /*fix_start_cumul_to_zero=*/true, kDimensionTime);
+    model.AddDimension(durationCallback, timeHorizon, timeHorizon,
+                       /*fix_start_cumul_to_zero=*/true, kDimensionTime);
     const auto& timeDimension = model.GetDimensionOrDie(kDimensionTime);
 
     for (std::int32_t node = 0; node < numNodes; ++node) {
       const auto interval = timeWindows->at(node);
       timeDimension.CumulVar(node)->SetRange(interval.start, interval.stop);
       // At the moment we only support a single interval for time windows.
-      // We can support multiple intervals if we sort intervals by start then stop.
-      // Then Cumulval(n)->SetRange(minStart, maxStop), then walk over intervals and
-      // remove intervals between active intervals: CumulVar(n)->RemoveInterval(stop, start).
+      // We can support multiple intervals if we sort intervals by start then
+      // stop.
+      // Then Cumulval(n)->SetRange(minStart, maxStop), then walk over intervals
+      // and
+      // remove intervals between active intervals:
+      // CumulVar(n)->RemoveInterval(stop, start).
     }
 
     // Capacity Dimension
@@ -89,8 +94,10 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     const static auto kDimensionCapacity = "capacity";
 
-    model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
-    // const auto& capacityDimension = model.GetDimensionOrDie(kDimensionCapacity);
+    model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity,
+                       /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
+    // const auto& capacityDimension =
+    // model.GetDimensionOrDie(kDimensionCapacity);
 
     model.CloseModel();
 
@@ -99,7 +106,7 @@ struct VRPWorker final : Nan::AsyncWorker {
     if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
       return SetErrorMessage("Unable to find a solution");
 
-    const auto cost = assignment->ObjectiveValue();
+    const auto cost = static_cast<std::int64_t>(assignment->ObjectiveValue());
 
     std::vector<std::vector<NodeIndex>> routes;
     model.AssignmentToRoutes(*assignment, &routes);
@@ -114,10 +121,10 @@ struct VRPWorker final : Nan::AsyncWorker {
 
         const auto* timeVar = timeDimension.CumulVar(index);
 
-        const auto earliest = assignment->Min(timeVar);
-        const auto latest = assignment->Max(timeVar);
+        const auto first = static_cast<std::int32_t>(assignment->Min(timeVar));
+        const auto last = static_cast<std::int32_t>(assignment->Max(timeVar));
 
-        routeTimes.push_back(Interval{earliest, latest});
+        routeTimes.push_back(Interval{first, last});
       }
 
       times.push_back(std::move(routeTimes));
@@ -176,7 +183,7 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::int32_t numNodes;
   std::int32_t numVehicles;
   std::int32_t vehicleDepot;
-  std::int64_t timeHorizon;
+  std::int32_t timeHorizon;
   std::int32_t vehicleCapacity;
 
   RoutingModel model;

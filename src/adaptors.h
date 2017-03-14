@@ -23,7 +23,7 @@ template <typename Adaptor> auto makeCallback(const Adaptor& adaptor) {
 }
 
 // Caches user provided Function(s, t) -> Number into Matrix
-template <typename Matrix> inline auto makeMatrixFromFunction(std::int64_t n, v8::Local<v8::Function> fn) {
+template <typename Matrix> inline auto makeMatrixFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
   if (n < 0)
     throw std::runtime_error{"Negative dimension"};
 
@@ -41,7 +41,7 @@ template <typename Matrix> inline auto makeMatrixFromFunction(std::int64_t n, v8
       if (!cost->IsNumber())
         throw std::runtime_error{"Expected function signature: Number fn(Number from, Number to)"};
 
-      matrix.at(fromIdx, toIdx) = Nan::To<std::int64_t>(cost).FromJust();
+      matrix.at(fromIdx, toIdx) = Nan::To<std::int32_t>(cost).FromJust();
     }
   }
 
@@ -49,7 +49,7 @@ template <typename Matrix> inline auto makeMatrixFromFunction(std::int64_t n, v8
 }
 
 // Caches user provided Function(node) -> [start, stop] into TimeWindows
-inline auto makeTimeWindowsFromFunction(std::int64_t n, v8::Local<v8::Function> fn) {
+inline auto makeTimeWindowsFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
   if (n < 0)
     throw std::runtime_error{"Negative size"};
 
@@ -77,7 +77,7 @@ inline auto makeTimeWindowsFromFunction(std::int64_t n, v8::Local<v8::Function> 
     if (!start->IsNumber() || !stop->IsNumber())
       throw std::runtime_error{"Expected interval start and stop of type Number"};
 
-    Interval out{Nan::To<std::int64_t>(start).FromJust(), Nan::To<std::int64_t>(stop).FromJust()};
+    Interval out{Nan::To<std::int32_t>(start).FromJust(), Nan::To<std::int32_t>(stop).FromJust()};
     timeWindows.at(atIdx) = std::move(out);
   }
 
