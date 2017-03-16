@@ -8,6 +8,17 @@ NodeJS or-tools TSP and VRP solver bindings. See [API.md](API.md) for documentat
 
     npm install
 
+### Running
+
+We ship pre-built binaries for which you need the corresponding C++ stdlib they were linked against:
+
+```
+apt install software-properties-common
+add-apt-repository ppa:ubuntu-toolchain-r/test
+apt update
+apt install libstdc++-5-dev
+```
+
 ### Tests
 
     npm test
