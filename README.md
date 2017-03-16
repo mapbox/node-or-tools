@@ -6,11 +6,22 @@ NodeJS or-tools TSP and VRP solver bindings. See [API.md](API.md) for documentat
 
 ### Installing
 
+Update your Node.js and NPM versions via [nvm](https://github.com/creationix/nvm).
+
+    nvm install 4
+    nvm use 4
+
+Then
+
     npm install
 
-### Running
+or if you are root
 
-We ship pre-built binaries for which you need the corresponding C++ stdlib they were linked against:
+    npm install --unsafe-perm
+
+We ship pre-built native binaries for which you will need a compatible C++ stdlib.
+
+#### Ubuntu 14.04
 
 ```
 apt install software-properties-common
@@ -18,6 +29,11 @@ add-apt-repository ppa:ubuntu-toolchain-r/test
 apt update
 apt install libstdc++-5-dev
 ```
+
+#### Ubuntu 16.04
+
+You're fine. The system's stdlib is recent enough.
+
 
 ### Tests
 
@@ -27,7 +43,8 @@ See
 - [npmjs.com/package/tap](https://www.npmjs.com/package/tap)
 - [node-tap.org](http://www.node-tap.org)
 
-### Undefined Symbols
+
+### Building - Undefined Symbols
 
 If your C++ compiler and stdlib are quite recent they will default to a new ABI.
 Mason packages are still built against an old ABI.
