@@ -4,7 +4,7 @@ set -eu
 set -o pipefail
 
 # Versions
-MASON_RELEASE="v0.9.0"
+MASON_RELEASE="v0.7.0"
 SPARSEHASH_RELEASE="2.0.2"
 ORTOOLS_RELEASE="5.1"
 PROTOBUF_RELEASE="3.0.0"
