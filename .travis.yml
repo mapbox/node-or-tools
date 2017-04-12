@@ -2,26 +2,25 @@ language: node_js
 
 addons:
   apt:
-    sources: [ 'ubuntu-toolchain-r-test','llvm-toolchain-precise-3.8' ]
-    packages: [ 'libstdc++-4.9-dev','clang-3.8' ]
+    sources: [ 'ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-4.0' ]
+    packages: [ 'libstdc++-4.9-dev', 'clang-4.0' ]
 
 install:
   - npm install
 
 script:
   - npm test
-  - npm test -- --cov
 
 matrix:
   include:
     - os: linux
       node_js: 4
       sudo: false
-      env: CXX='clang++-3.8'
+      env: CC='clang-4.0' CXX='clang++-4.0'
     - os: linux
       node_js: 6
       sudo: false
-      env: CXX='clang++-3.8'
+      env: CC='clang-4.0' CXX='clang++-4.0'
     - os: osx
       osx_image: xcode8.2
       node_js: 4
