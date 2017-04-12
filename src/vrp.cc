@@ -63,6 +63,9 @@ NAN_METHOD(VRP::Solve) try {
   searchParams.set_local_search_metaheuristic(metaHeuristic);
   searchParams.set_time_limit_ms(userParams.computeTimeLimit);
 
+  // As long as we have a homogeneous fleet wrt. costs we can simplify the underlying model
+  modelParams.set_reduce_vehicle_cost_model(true);
+
   const std::int32_t numNodes = self->costs->dim();
   const std::int32_t numVehicles = userParams.numVehicles;
 
