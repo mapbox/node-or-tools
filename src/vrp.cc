@@ -66,6 +66,9 @@ NAN_METHOD(VRP::Solve) try {
   // As long as we have a homogeneous fleet wrt. costs we can simplify the underlying model
   modelParams.set_reduce_vehicle_cost_model(true);
 
+  // Do not cache callbacks internally, too: we already provide efficient matrix adaptors
+  modelParams.set_max_callback_cache_size(0);
+
   const std::int32_t numNodes = self->costs->dim();
   const std::int32_t numVehicles = userParams.numVehicles;
 
