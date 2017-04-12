@@ -36,15 +36,13 @@ tap.test('Test TSP', function(assert) {
   TSP.Solve(searchOpts, function (err, solution) {
     assert.ifError(err, 'Solution can be found');
 
-    assert.type(solution, Array, 'Solution is Array with routes per vehicle');
-    assert.equal(solution.length, 1, 'Solution has one route Array with locations');
-    assert.type(solution[0], Array, 'Route is Array of locations');
-    assert.equal(solution[0].length, locations.length - 1, 'Number of locations in route is number of locations without depot');
+    assert.type(solution, Array, 'Solution is Array of locations');
+    assert.equal(solution.length, locations.length - 1, 'Number of locations in route is number of locations without depot');
 
-    assert.ok(!solution[0].find(function (v) { return v == depot; }), 'Depot is not in routes');
+    assert.ok(!solution.find(function (v) { return v == depot; }), 'Depot is not in routes');
 
     function adjacentCost(acc, v) { return { cost: acc.cost + costs(acc.at, v), at: v }; }
-    var route = solution[0].reduce(adjacentCost, { cost: 0, at: depot });
+    var route = solution.reduce(adjacentCost, { cost: 0, at: depot });
     assert.equal(route.cost, locations.length - 1, 'Costs are minimum Manhattan Distance in location grid');
 
     assert.end();

@@ -30,29 +30,24 @@ struct TSPWorker final : Nan::AsyncWorker {
     if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
       SetErrorMessage("Unable to find a solution");
 
-    // const auto cost = assignment->ObjectiveValue();
-
     model.AssignmentToRoutes(*assignment, &routes);
+
+    if (routes.size() != 1)
+      SetErrorMessage("Expected route for one vehicle");
   }
 
   void HandleOKCallback() override {
     Nan::HandleScope scope;
 
-    auto jsRoutes = Nan::New<v8::Array>(routes.size());
+    const auto& route = routes.front();
 
-    for (std::size_t i = 0; i < routes.size(); ++i) {
-      const auto& route = routes[i];
+    auto jsRoute = Nan::New<v8::Array>(route.size());
 
-      auto jsNodes = Nan::New<v8::Array>(route.size());
-
-      for (std::size_t j = 0; j < route.size(); ++j)
-        (void)Nan::Set(jsNodes, j, Nan::New<v8::Number>(route[j].value()));
-
-      (void)Nan::Set(jsRoutes, i, jsNodes);
-    }
+    for (std::size_t j = 0; j < route.size(); ++j)
+      (void)Nan::Set(jsRoute, j, Nan::New<v8::Number>(route[j].value()));
 
     const auto argc = 2u;
-    v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoutes};
+    v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoute};
 
     callback->Call(argc, argv);
   }
