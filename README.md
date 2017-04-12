@@ -2,7 +2,12 @@
 
 [![Build Status](https://travis-ci.com/mapbox/node-or-tools.svg?token=hLpUd9oZwpjSs5JzfqFa&branch=master)](https://travis-ci.com/mapbox/node-or-tools)
 
-NodeJS or-tools TSP and VRP solver bindings. See [API.md](API.md) for documentation.
+NodeJS bindings for or-tools Travelling Salesman Problem (TSP) and Vehicle Routing Problem (VRP) solvers.
+
+See [API.md](API.md) for documentation.
+
+Solving TSP and VRP problems always starts out with having a `m x m` cost matrix for all pairwise routes between all locations.
+We recommend using the [Mapbox Directions Matrix](https://www.mapbox.com/api-documentation/#directions-matrix) service when optimizing travel times.
 
 ### Installing
 
