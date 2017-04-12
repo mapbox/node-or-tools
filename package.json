@@ -14,9 +14,9 @@
     "test": "tap -Rspec test/*.js"
   },
   "dependencies": {
-    "nan": "^2.5"
+    "nan": "^2.6"
   },
   "devDependencies": {
-    "tap": "^10.2"
+    "tap": "^10.3"
   }
 }
