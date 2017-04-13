@@ -1,0 +1,10 @@
+{
+  "name": "node_or_tools_example",
+  "version": "0.0.1",
+  "description": "Example for node-or-tools",
+  "author": "Daniel J. Hofmann",
+  "license": "MIT",
+  "dependencies": {
+    "mapbox": "^1.0.0-beta6"
+  }
+}
