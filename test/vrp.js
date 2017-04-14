@@ -98,6 +98,7 @@ for (var from = 0; from < locations.length; ++from) {
 
 
 tap.test('Test VRP', function(assert) {
+
   var solverOpts = {
     numNodes: locations.length,
     costs: costMatrix,
@@ -128,10 +129,13 @@ tap.test('Test VRP', function(assert) {
     depotNode: depot,
     timeHorizon: timeHorizon,
     vehicleCapacity: vehicleCapacity,
-    routeLocks: routeLocks
+    routeLocks: routeLocks,
+    pickups: [4, 12],
+    deliveries: [9, 8]
   };
 
   VRP.Solve(searchOpts, function (err, solution) {
+    console.log(solution);
     assert.ifError(err, 'Solution can be found');
 
     assert.type(solution, Object, 'Solution is Object with properties');

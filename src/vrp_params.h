@@ -29,6 +29,9 @@ struct VRPSearchParams {
 
   RouteLocks routeLocks;
 
+  Pickups pickups;
+  Deliveries deliveries;
+
   v8::Local<v8::Function> callback;
 };
 
@@ -160,6 +163,8 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto maybeTimeHorizon = Nan::Get(opts, Nan::New("timeHorizon").ToLocalChecked());
   auto maybeVehicleCapacity = Nan::Get(opts, Nan::New("vehicleCapacity").ToLocalChecked());
   auto maybeRouteLocks = Nan::Get(opts, Nan::New("routeLocks").ToLocalChecked());
+  auto maybePickups = Nan::Get(opts, Nan::New("pickups").ToLocalChecked());
+  auto maybeDeliveries = Nan::Get(opts, Nan::New("deliveries").ToLocalChecked());
 
   auto computeTimeLimitOk = !maybeComputeTimeLimit.IsEmpty() && maybeComputeTimeLimit.ToLocalChecked()->IsNumber();
   auto numVehiclesOk = !maybeNumVehicles.IsEmpty() && maybeNumVehicles.ToLocalChecked()->IsNumber();
@@ -167,15 +172,21 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto timeHorizonOk = !maybeTimeHorizon.IsEmpty() && maybeTimeHorizon.ToLocalChecked()->IsNumber();
   auto vehicleCapacityOk = !maybeVehicleCapacity.IsEmpty() && maybeVehicleCapacity.ToLocalChecked()->IsNumber();
   auto routeLocksOk = !maybeRouteLocks.IsEmpty() && maybeRouteLocks.ToLocalChecked()->IsArray();
+  auto pickupsOk = !maybePickups.IsEmpty() && maybePickups.ToLocalChecked()->IsArray();
+  auto deliveriesOk = !maybeDeliveries.IsEmpty() && maybeDeliveries.ToLocalChecked()->IsArray();
 
-  if (!computeTimeLimitOk || !numVehiclesOk || !depotNodeOk || !timeHorizonOk || !vehicleCapacityOk || !routeLocksOk)
+  // TODO: this is getting out of hand, clean up, or better think about generic parameter parsing
+  if (!computeTimeLimitOk || !numVehiclesOk || !depotNodeOk || !timeHorizonOk || !vehicleCapacityOk || !routeLocksOk ||
+      !pickupsOk || !deliveriesOk)
     throw std::runtime_error{"SearchOptions expects"
                              " 'computeTimeLimit' (Number),"
                              " 'numVehicles' (Number),"
                              " 'depotNode' (Number),"
                              " 'timeHorizon' (Number),"
                              " 'vehicleCapacity' (Number),"
-                             " 'routeLocks (Array)'"};
+                             " 'routeLocks' (Array),"
+                             " 'pickups' (Array),"
+                             " 'deliveries' (Array)"};
 
   computeTimeLimit = Nan::To<std::int32_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
   numVehicles = Nan::To<std::int32_t>(maybeNumVehicles.ToLocalChecked()).FromJust();
@@ -185,6 +196,12 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
 
   auto routeLocksArray = maybeRouteLocks.ToLocalChecked().As<v8::Array>();
   routeLocks = makeRouteLocksFrom2dArray(numVehicles, routeLocksArray);
+
+  auto pickupsArray = maybePickups.ToLocalChecked().As<v8::Array>();
+  pickups = makeVectorFromJsNumberArray<Pickups>(pickupsArray);
+
+  auto deliveriesArray = maybeDeliveries.ToLocalChecked().As<v8::Array>();
+  deliveries = makeVectorFromJsNumberArray<Deliveries>(deliveriesArray);
 
   callback = info[1].As<v8::Function>();
 }

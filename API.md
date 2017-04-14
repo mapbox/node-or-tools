@@ -125,6 +125,8 @@ Runs the VRP solver asynchronously to search for a solution.
 - `timeHorizon` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The last time point the solver uses for time constraints. The solver starts from time point `0` (you can think of this as the start of the work day) and and ends at `timeHorizon` (you can think of this as the end of the work day).
 - `vehicleCapacity` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The maximum capacity for goods each vehicle can carry. Demand at nodes decrease the capacity.
 - `routeLocks` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Route locks array the solver uses for locking (sub-) routes into place, per vehicle. Two-dimensional with `routeLocks[vehicle]` being an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices `vehicle` has to visit in order. Can be empty. Must not contain the depots.
+- `pickups` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices for picking up good. The corresponding delivery node index is in the `deliveries` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** at the same position (parallel arrays). For a pair of pickup and delivery indices: pickup location comes before the corresponding delivery location and is served by the same vehicle.
+- `deliveries` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices for delivering picked up goods. The corresponding pickup node index is in the `pickups` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** at the same position (parallel arrays). For a pair of pickup and delivery indices: pickup location comes before the corresponding delivery location and is served by the same vehicle.
 
 **Examples**
 
@@ -136,6 +138,8 @@ var vrpSearchOpts = {
   timeHorizon: 9 * 60 * 60,
   vehicleCapacity: 3,
   routeLocks: [[], [3, 4], []]
+  pickups: [4, 9],
+  deliveries: [12, 8]
 };
 
 VRP.Solve(vrpSearchOpts, function (err, solution) {

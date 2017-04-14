@@ -124,7 +124,9 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     depotNode: depotIndex,
     timeHorizon: timeHorizon,
     vehicleCapacity: vehicleCapacity,
-    routeLocks: routeLocks
+    routeLocks: routeLocks,
+    pickups: [],
+    deliveries: []
   };
 
   VRP.Solve(searchOpts, function (err, result) {

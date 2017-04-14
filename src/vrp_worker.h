@@ -33,7 +33,9 @@ struct VRPWorker final : Nan::AsyncWorker {
             std::int32_t vehicleDepot_,                       //
             std::int32_t timeHorizon_,                        //
             std::int32_t vehicleCapacity_,                    //
-            RouteLocks routeLocks_)                           //
+            RouteLocks routeLocks_,                           //
+            Pickups pickups_,                                 //
+            Deliveries deliveries_)                           //
       : Base(callback),
         // Cached vectors and matrices
         costs{std::move(costs_)},
@@ -47,6 +49,8 @@ struct VRPWorker final : Nan::AsyncWorker {
         timeHorizon{timeHorizon_},
         vehicleCapacity{vehicleCapacity_},
         routeLocks{std::move(routeLocks_)},
+        pickups{std::move(pickups_)},
+        deliveries{std::move(deliveries_)},
         // Setup model
         model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
         modelParams{modelParams_},
@@ -78,6 +82,11 @@ struct VRPWorker final : Nan::AsyncWorker {
           throw std::runtime_error{"Expected depot not to be in route locks"};
       }
     }
+
+    const auto pickupsAndDeliveriesOk = pickups.size() == deliveries.size();
+
+    if (!pickupsAndDeliveriesOk)
+      throw std::runtime_error{"Expected pickups and deliveries parallel array sizes to match"};
   }
 
   void Execute() override {
@@ -115,6 +124,25 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
     // const auto& capacityDimension = model.GetDimensionOrDie(kDimensionCapacity);
+
+    // Pickup and Deliveries
+
+    auto* solver = model.solver();
+
+    for (std::int32_t atIdx = 0; atIdx < pickups.size(); ++atIdx) {
+      auto* sameRouteCt = solver->MakeEquality(model.VehicleVar(model.NodeToIndex(pickups.at(atIdx))),     //
+                                               model.VehicleVar(model.NodeToIndex(deliveries.at(atIdx)))); //
+
+      auto* pickupBeforeDeliveryCt = solver->MakeLessOrEqual(timeDimension.CumulVar(pickups.at(atIdx).value()),     //
+                                                             timeDimension.CumulVar(deliveries.at(atIdx).value())); //
+
+      solver->AddConstraint(sameRouteCt);
+      solver->AddConstraint(pickupBeforeDeliveryCt);
+
+      model.AddPickupAndDelivery(pickups.at(atIdx), deliveries.at(atIdx));
+    }
+
+    // Done with modifications to the routing model
 
     model.CloseModel();
 
@@ -210,6 +238,9 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::int32_t vehicleCapacity;
 
   const RouteLocks routeLocks;
+
+  const Pickups pickups;
+  const Deliveries deliveries;
 
   RoutingModel model;
   RoutingModelParameters modelParams;
