@@ -9,7 +9,7 @@ See [API.md](API.md) for documentation.
 Solving TSP and VRP problems always starts out with having a `m x m` cost matrix for all pairwise routes between all locations.
 We recommend using the [Mapbox Directions Matrix](https://www.mapbox.com/api-documentation/#directions-matrix) service when optimizing travel times.
 
-[![Example](https://raw.github.com/mapbox/node-or-tools/master/examples/solution.png)](https://github.com/mapbox/node-or-tools/blob/master/examples/solution.geojson)
+[![Example](https://raw.githubusercontent.com/mapbox/node-or-tools/master/examples/solution.png?token=AAgLic9T5CyqceExJrvicb1zMdqSrbufks5Y-VfYwA)](https://github.com/mapbox/node-or-tools/blob/master/examples/solution.geojson)
 
 ### Installing
 
