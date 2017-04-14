@@ -85,12 +85,16 @@ tap.test('Test VRP', function(assert) {
   var timeHorizon = dayEnds - dayStarts;
   var vehicleCapacity = 10;
 
+  // Dummy lock to let vehicle 0 go to location 2 and 3 first - to test route locks
+  var locks = function(vehicle) { return (vehicle === 0) ? [2, 3] : []; };
+
   var searchOpts = {
     computeTimeLimit: 1000,
     numVehicles: numVehicles,
     depotNode: depot,
     timeHorizon: timeHorizon,
-    vehicleCapacity: vehicleCapacity
+    vehicleCapacity: vehicleCapacity,
+    locks: locks
   };
 
   VRP.Solve(searchOpts, function (err, solution) {
@@ -124,6 +128,10 @@ tap.test('Test VRP', function(assert) {
 
     solution.routes.forEach(checkRoute);
     solution.times.forEach(checkTimeWindows);
+
+    // We locked vehicle 0 to go to location 2 and 3 first
+    assert.equal(solution.routes[0][0], 2);
+    assert.equal(solution.routes[0][1], 3);
 
     assert.end();
   });

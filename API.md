@@ -127,17 +127,20 @@ Runs the VRP solver asynchronously to search for a solution.
 - `depotNode` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The depot node index in the range `[0, numNodes - 1]` where all vehicles start and end at.
 - `timeHorizon` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The last time point the solver uses for time constraints. The solver starts from time point `0` (you can think of this as the start of the work day) and and ends at `timeHorizon` (you can think of this as the end of the work day).
 - `vehicleCapacity` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The maximum capacity for goods each vehicle can carry. Demand at nodes decrease the capacity.
-
+- `locks` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Route locks function the solver uses for locking (sub-) routes into place per vehicle. Takes one parameter: `vehicle` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** vehicle index in the range `[0, numVehicles - 1]`. Return value has to be an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices the vehicle should visit in order. Can be empty. Must not contain the depots.
 
 **Examples**
 
 ```javascript
+var locks = function (vehicle) { return []; };
+
 var vrpSearchOpts = {
   computeTimeLimit: 1000,
   numVehicles: 3,
   depotNode: depotNode,
   timeHorizon: 9 * 60 * 60,
-  vehicleCapacity: 3
+  vehicleCapacity: 3,
+  locks: locks
 };
 
 VRP.Solve(vrpSearchOpts, function (err, solution) {

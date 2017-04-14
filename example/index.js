@@ -81,6 +81,7 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
   function durations(s, t) { return 5 * 60 + results.durations[s][t]; }
   function timeWindows(at) { return [dayStarts, dayEnds]; }
   function demands(s, t) { return s === depotIndex ? 0 : 1; }
+  function locks(vehicle) { return []; };
 
   var solverOpts = {
     numNodes: results.durations.length,
@@ -92,7 +93,6 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
 
   var VRP = new Solver.VRP(solverOpts);
 
-
   var timeHorizon = dayEnds - dayStarts;
 
   var searchOpts = {
@@ -100,7 +100,8 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     numVehicles: numVehicles,
     depotNode: depotIndex,
     timeHorizon: timeHorizon,
-    vehicleCapacity: vehicleCapacity
+    vehicleCapacity: vehicleCapacity,
+    locks: locks
   };
 
   VRP.Solve(searchOpts, function (err, result) {

@@ -38,7 +38,10 @@ NAN_METHOD(VRP::New) try {
   auto timeWindows = makeTimeWindowsFromFunction(userParams.numNodes, userParams.timeWindowFunc);
   auto demandMatrix = makeMatrixFromFunction<DemandMatrix>(userParams.numNodes, userParams.demandFunc);
 
-  auto* self = new VRP{std::move(costMatrix), std::move(durationMatrix), std::move(timeWindows), std::move(demandMatrix)};
+  auto* self = new VRP{std::move(costMatrix),     //
+                       std::move(durationMatrix), //
+                       std::move(timeWindows),    //
+                       std::move(demandMatrix)};  //
   self->Wrap(info.This());
 
   info.GetReturnValue().Set(info.This());
@@ -72,6 +75,10 @@ NAN_METHOD(VRP::Solve) try {
   const std::int32_t numNodes = self->costs->dim();
   const std::int32_t numVehicles = userParams.numVehicles;
 
+  // Locks depend on the number of vehicles, they can be changed in the Solve function (not in the constructor)
+  auto routeLocks = makeRouteLocksFromFunction(userParams.numVehicles, userParams.lockFunc);
+
+  // TODO: this is getting out of hand, clean up, e.g. split into data vs. config
   auto* worker = new VRPWorker{self->costs,                            //
                                self->durations,                        //
                                self->timeWindows,                      //
@@ -83,7 +90,8 @@ NAN_METHOD(VRP::Solve) try {
                                numVehicles,                            //
                                userParams.depotNode,                   //
                                userParams.timeHorizon,                 //
-                               userParams.vehicleCapacity};            //
+                               userParams.vehicleCapacity,             //
+                               routeLocks};                            //
   Nan::AsyncQueueWorker(worker);
 
 } catch (const std::exception& e) {

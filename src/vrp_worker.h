@@ -6,6 +6,8 @@
 #include "adaptors.h"
 #include "types.h"
 
+#include <algorithm>
+#include <iterator>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -30,7 +32,8 @@ struct VRPWorker final : Nan::AsyncWorker {
             std::int32_t numVehicles_,                        //
             std::int32_t vehicleDepot_,                       //
             std::int32_t timeHorizon_,                        //
-            std::int32_t vehicleCapacity_)                    //
+            std::int32_t vehicleCapacity_,                    //
+            RouteLocks routeLocks_)                           //
       : Base(callback),
         // Cached vectors and matrices
         costs{std::move(costs_)},
@@ -43,6 +46,7 @@ struct VRPWorker final : Nan::AsyncWorker {
         vehicleDepot{vehicleDepot_},
         timeHorizon{timeHorizon_},
         vehicleCapacity{vehicleCapacity_},
+        routeLocks{std::move(routeLocks_)},
         // Setup model
         model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
         modelParams{modelParams_},
@@ -54,8 +58,26 @@ struct VRPWorker final : Nan::AsyncWorker {
     const auto demandsOk = demands->dim() == numNodes;
 
     if (!costsOk || !durationsOk || !timeWindowsOk || !demandsOk)
-      throw std::runtime_error{"Expected costs, durations, timeWindow and "
-                               "demand sizes to match numNodes"};
+      throw std::runtime_error{"Expected costs, durations, timeWindow and demand sizes to match numNodes"};
+
+    const auto routeLocksOk = (std::int32_t)routeLocks.size() == numVehicles;
+
+    if (!routeLocksOk)
+      throw std::runtime_error{"Expected routeLocks size to match numVehicles"};
+
+    for (const auto& locks : routeLocks) {
+      for (const auto& node : locks) {
+        const auto nodeInBounds = node >= 0 && node < numNodes;
+
+        if (!nodeInBounds)
+          throw std::runtime_error{"Expected nodes in route locks to be in [0, numNodes - 1]"};
+
+        const auto nodeIsDepot = node == vehicleDepot;
+
+        if (nodeIsDepot)
+          throw std::runtime_error{"Expected depot not to be in route locks"};
+      }
+    }
   }
 
   void Execute() override {
@@ -71,19 +93,16 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     const static auto kDimensionTime = "time";
 
-    model.AddDimension(durationCallback, timeHorizon, timeHorizon,
-                       /*fix_start_cumul_to_zero=*/true, kDimensionTime);
+    model.AddDimension(durationCallback, timeHorizon, timeHorizon, /*fix_start_cumul_to_zero=*/true, kDimensionTime);
     const auto& timeDimension = model.GetDimensionOrDie(kDimensionTime);
 
     for (std::int32_t node = 0; node < numNodes; ++node) {
       const auto interval = timeWindows->at(node);
       timeDimension.CumulVar(node)->SetRange(interval.start, interval.stop);
       // At the moment we only support a single interval for time windows.
-      // We can support multiple intervals if we sort intervals by start then
-      // stop.
+      // We can support multiple intervals if we sort intervals by start then stop.
       // Then Cumulval(n)->SetRange(minStart, maxStop), then walk over intervals
-      // and
-      // remove intervals between active intervals:
+      // removing intervals between active intervals:
       // CumulVar(n)->RemoveInterval(stop, start).
     }
 
@@ -94,12 +113,16 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     const static auto kDimensionCapacity = "capacity";
 
-    model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity,
-                       /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
-    // const auto& capacityDimension =
-    // model.GetDimensionOrDie(kDimensionCapacity);
+    model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
+    // const auto& capacityDimension = model.GetDimensionOrDie(kDimensionCapacity);
 
     model.CloseModel();
+
+    // Locking routes into place needs to happen after the model is closed and the underlying vars are established
+    const auto validLocks = model.ApplyLocksToAllVehicles(routeLocks, /*close_routes=*/false);
+
+    if (!validLocks)
+      return SetErrorMessage("Invalid locks");
 
     const auto* assignment = model.SolveWithParameters(searchParams);
 
@@ -185,6 +208,8 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::int32_t vehicleDepot;
   std::int32_t timeHorizon;
   std::int32_t vehicleCapacity;
+
+  const RouteLocks routeLocks;
 
   RoutingModel model;
   RoutingModelParameters modelParams;

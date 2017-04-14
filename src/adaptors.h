@@ -84,4 +84,43 @@ inline auto makeTimeWindowsFromFunction(std::int32_t n, v8::Local<v8::Function> 
   return timeWindows;
 }
 
+// Caches user provided Function(vehicle) -> [node0, node1, ..] into RouteLocks
+inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
+  if (n < 0)
+    throw std::runtime_error{"Negative size"};
+
+  Nan::Callback callback{fn};
+
+  // Note: use (n) for construction because RouteLocks is a weak alias to a std::vector.
+  // Using vec(n) creates a vector of n items, using vec{n} creates a vector with a single element n.
+  RouteLocks routeLocks(n);
+
+  for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
+    const auto argc = 1u;
+    v8::Local<v8::Value> argv[argc] = {Nan::New(atIdx)};
+
+    auto locks = callback.Call(argc, argv);
+
+    if (!locks->IsArray())
+      throw std::runtime_error{"Expected function signature: Array fn(Number vehicle)"};
+
+    auto locksArray = locks.As<v8::Array>();
+
+    LockChain lockChain(locksArray->Length());
+
+    for (std::int32_t lockIdx = 0; lockIdx < (std::int32_t)locksArray->Length(); ++lockIdx) {
+      auto node = Nan::Get(locksArray, lockIdx).ToLocalChecked();
+
+      if (!node->IsNumber())
+        throw std::runtime_error{"Expected lock node of type Number"};
+
+      lockChain.at(lockIdx) = Nan::To<std::int32_t>(node).FromJust();
+    }
+
+    routeLocks.at(atIdx) = std::move(lockChain);
+  }
+
+  return routeLocks;
+}
+
 #endif

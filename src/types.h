@@ -56,4 +56,10 @@ using SearchLimitParameters = ort::SearchLimitParameters;
 // See constraint_solver.h
 using Solver = ort::Solver;
 
+// Locks: for locking (sub-) routes into place:
+//  - locks[i] holds the lock chain for vehicle i (can be empty)
+//  - lock chain is ordered list of node indices for vehicle i (must not contain depots)
+using LockChain = std::vector<NodeIndex>;
+using RouteLocks = std::vector<LockChain>;
+
 #endif
