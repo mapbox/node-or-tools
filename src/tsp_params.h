@@ -5,12 +5,13 @@
 
 #include <stdexcept>
 
+#include "params.h"
+
 struct TSPSolverParams {
   TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
   std::int32_t numNodes;
-
-  v8::Local<v8::Function> costFunc;
+  CostMatrix costs;
 };
 
 struct TSPSearchParams {
@@ -31,16 +32,18 @@ TSPSolverParams::TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto opts = info[0].As<v8::Object>();
 
   auto maybeNumNodes = Nan::Get(opts, Nan::New("numNodes").ToLocalChecked());
-  auto maybeCostFunc = Nan::Get(opts, Nan::New("costs").ToLocalChecked());
+  auto maybeCostMatrix = Nan::Get(opts, Nan::New("costs").ToLocalChecked());
 
   auto numNodesOk = !maybeNumNodes.IsEmpty() && maybeNumNodes.ToLocalChecked()->IsNumber();
-  auto costFuncOk = !maybeCostFunc.IsEmpty() && maybeCostFunc.ToLocalChecked()->IsFunction();
+  auto costMatrixOk = !maybeCostMatrix.IsEmpty() && maybeCostMatrix.ToLocalChecked()->IsArray();
 
-  if (!numNodesOk || !costFuncOk)
-    throw std::runtime_error{"SolverOptions expects 'numNodes' (Number), 'costs' (Function)"};
+  if (!numNodesOk || !costMatrixOk)
+    throw std::runtime_error{"SolverOptions expects 'numNodes' (Number), 'costs' (Array)"};
 
   numNodes = Nan::To<std::int32_t>(maybeNumNodes.ToLocalChecked()).FromJust();
-  costFunc = maybeCostFunc.ToLocalChecked().As<v8::Function>();
+
+  auto costMatrix = maybeCostMatrix.ToLocalChecked().As<v8::Array>();
+  costs = makeMatrixFrom2dArray<CostMatrix>(numNodes, costMatrix);
 }
 
 TSPSearchParams::TSPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {

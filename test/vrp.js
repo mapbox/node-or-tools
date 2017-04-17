@@ -11,8 +11,23 @@ var locations = [[0, 0], [0, 1], [0, 2], [0, 3],
 
 var depot = 0;
 
+function manhattanDistance(lhs, rhs) {
+  return Math.abs(lhs[0] - rhs[0]) + Math.abs(lhs[1] - rhs[1]);
+}
+
+var costMatrix = new Array(locations.length);
+
+for (var from = 0; from < locations.length; ++from) {
+  costMatrix[from] = new Array(locations.length);
+
+  for (var to = 0; to < locations.length; ++to) {
+    costMatrix[from][to] = manhattanDistance(locations[from], locations[to]);
+  }
+}
+
 var dayStarts = Hours(0);
 var dayEnds = Hours(3);
+
 
 var seed = 2147483650;
 
@@ -30,28 +45,33 @@ function ParkMillerRNG(seed) {
 
 var rand = ParkMillerRNG(seed);
 
-function manhattanDistance(lhs, rhs) {
-  return Math.abs(lhs[0] - rhs[0]) + Math.abs(lhs[1] - rhs[1]);
-}
-
-function costs(s, t) {
-  return manhattanDistance(locations[s], locations[t]);
-}
 
 function Seconds(v) { return v; };
 function Minutes(v) { return Seconds(v * 60); }
 function Hours(v)   { return Minutes(v * 60); }
 
-function durations(s, t) {
-  var serviceTime = Minutes(3);
-  var travelTime = Minutes(costs(s, t));
 
-  return serviceTime + travelTime;
+var durationMatrix = new Array(locations.length);
+
+for (var from = 0; from < locations.length; ++from) {
+  durationMatrix[from] = new Array(locations.length);
+
+  for (var to = 0; to < locations.length; ++to) {
+    var serviceTime = Minutes(3);
+    var travelTime = Minutes(costMatrix[from][to]);
+
+    durationMatrix[from][to] = serviceTime + travelTime;
+  }
 }
 
-function timeWindows(at) {
-  if (at == depot)
-    return [dayStarts, dayEnds];
+
+var timeWindows = new Array(locations.length);
+
+for (var at = 0; at < locations.length; ++at) {
+  if (at === depot) {
+    timeWindows[at] = [dayStarts, dayEnds];
+    continue;
+  }
 
   var earliest = dayStarts;
   var latest = dayEnds - Hours(1);
@@ -59,24 +79,31 @@ function timeWindows(at) {
   var start = rand() * (latest - earliest) + earliest;
   var stop = rand() * (latest - start) + start;
 
-  return [start, stop];
+  timeWindows[at] = [start, stop];
 }
 
-function demands(s, t) {
-  if (s === depot)
-    return 0;
-  else
-    return 1;
+
+var demandMatrix = new Array(locations.length);
+
+for (var from = 0; from < locations.length; ++from) {
+  demandMatrix[from] = new Array(locations.length);
+
+  for (var to = 0; to < locations.length; ++to) {
+    if (from === depot)
+      demandMatrix[from][to] = 0
+    else
+      demandMatrix[from][to] = 1
+  }
 }
 
 
 tap.test('Test VRP', function(assert) {
   var solverOpts = {
     numNodes: locations.length,
-    costs: costs,
-    durations: durations,
+    costs: costMatrix,
+    durations: durationMatrix,
     timeWindows: timeWindows,
-    demands: demands
+    demands: demandMatrix
   };
 
   var VRP = new ortools.VRP(solverOpts);
@@ -86,7 +113,14 @@ tap.test('Test VRP', function(assert) {
   var vehicleCapacity = 10;
 
   // Dummy lock to let vehicle 0 go to location 2 and 3 first - to test route locks
-  var locks = function(vehicle) { return (vehicle === 0) ? [2, 3] : []; };
+  var routeLocks = new Array(numVehicles);
+
+  for (var vehicle = 0; vehicle < numVehicles; ++vehicle) {
+    if (vehicle === 0)
+      routeLocks[vehicle] = [2, 3];
+    else
+      routeLocks[vehicle] = [];
+  }
 
   var searchOpts = {
     computeTimeLimit: 1000,
@@ -94,7 +128,7 @@ tap.test('Test VRP', function(assert) {
     depotNode: depot,
     timeHorizon: timeHorizon,
     vehicleCapacity: vehicleCapacity,
-    locks: locks
+    routeLocks: routeLocks
   };
 
   VRP.Solve(searchOpts, function (err, solution) {

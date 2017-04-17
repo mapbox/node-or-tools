@@ -34,9 +34,8 @@ NAN_METHOD(TSP::New) try {
 
   TSPSolverParams userParams{info};
 
-  auto costMatrix = makeMatrixFromFunction<CostMatrix>(userParams.numNodes, userParams.costFunc);
+  auto* self = new TSP{std::move(userParams.costs)};
 
-  auto* self = new TSP{std::move(costMatrix)};
   self->Wrap(info.This());
 
   info.GetReturnValue().Set(info.This());

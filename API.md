@@ -20,16 +20,18 @@ Initializes and caches user data internally for efficiency.
 
 **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** with solver-specific options:
 - `numNodes` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Number of locations in the problem ("nodes").
-- `costs` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Cost function the solver minimizes. Can for example be duration, distance but does not have to be. Takes two parameters: `from` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** and `to` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** node indices in the range `[0, numNodes - 1]`. Return value has to be a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the cost for traversing the arc from `from` to `to`.
+- `costs` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Cost array the solver minimizes in optimization. Can for example be duration, distance but does not have to be. Two-dimensional with `costs[from][to]` being a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the cost for traversing the arc from `from` to `to`.
 
 
 **Examples**
 
 ```javascript
-var costs = function (from, to) { return distances[from][to]; };
+var costs = [[0, 10, 10],
+             [10, 0, 10],
+             [10, 10, 0]];
 
 var tspSolverOpts = {
-  numNodes: 10,
+  numNodes: 3,
   costs: costs
 };
 
@@ -89,26 +91,21 @@ Initializes and caches user data internally for efficiency.
 
 **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** with solver-specific options:
 - `numNodes` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Number of locations in the problem ("nodes").
-- `costs` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Cost function the solver minimizes. Can for example be duration, distance but does not have to be. Takes two parameters: `from` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** and `to` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** node indices in the range `[0, numNodes - 1]`. Return value has to be a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the cost for traversing the arc from `from` to `to`.
-- `durations` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Duration function the solver uses for time constraints. Takes two parameters: `from` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** and `to` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** node indices in the range `[0, numNodes - 1]`. Return value has to be a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the duration for servicing node `from` plus the time for traversing the arc from `from` to `to`.
-- `timeWindows` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Time window function the solver uses for time constraints. Takes one parameter: `at` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** node index in the range `[0, numNodes - 1]`. Return value has to be an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** of two **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the start and end time point of the time window when servicing the node `at` is allowed. The solver starts from time point `0` (you can think of this as the start of the work day) and the time points need to be positive offsets to this time point.
-- `demands` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Demands function the solver uses for vehicle capacity constraints. Takes two parameter: `from` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** and `to` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** node indices in the range `[0, numNodes - 1]`. Return value has to be a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the demand at node `from`, for example number of packages to deliver to this location. The `to` node index is unused and reserved for future changes. The depot should have a demand of zero.
+- `costs` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Cost array the solver minimizes in optimization. Can for example be duration, distance but does not have to be. Two-dimensional with `costs[from][to]` being a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the cost for traversing the arc from `from` to `to`.
+- `durations` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Duration array the solver uses for time constraints. Two-dimensional with `durations[from][to]` being a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the duration for servicing node `from` plus the time for traversing the arc from `from` to `to`.
+- `timeWindows` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Time window array the solver uses for time constraints. Two-dimensional with `timeWindows[at]` being an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** of two **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the start and end time point of the time window when servicing the node `at` is allowed. The solver starts from time point `0` (you can think of this as the start of the work day) and the time points need to be positive offsets to this time point.
+- `demands` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Demands array the solver uses for vehicle capacity constraints. Two-dimensional with `demands[from][to]` being a **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** representing the demand at node `from`, for example number of packages to deliver to this location. The `to` node index is unused and reserved for future changes; set `demands[at]` to a constant array for now. The depot should have a demand of zero.
 
 
 **Examples**
 
 ```javascript
-var costs = function (from, to) { return distances[from][to]; };
-var durations = function (from, to) { return 5 * 60 + duration[from][to]; };
-var timeWindows = function (at) { return [0 * 60 * 60, 5 * 60 * 60]; };
-var demands = function (from, to) { return from == depotNode ? 0 : 1; }
-
 var vrpSolverOpts = {
-  numNodes: 10,
-  costs: costs,
-  durations: durations,
-  timeWindows: timeWindows,
-  demands: demands
+  numNodes: 3,
+  costs: [[0, 10, 10], [10, 0, 10], [10, 10, 0]],
+  durations: [[0, 2, 2], [2, 0, 2], [2, 2, 0]],
+  timeWindows: [[0, 9], [2, 3], [2, 3]],
+  demands: [[0, 0, 0], [1, 1, 1], [1, 1, 1]]
 };
 
 var VRP = new node_or_tools.VRP(vrpSolverOpts);
@@ -127,20 +124,18 @@ Runs the VRP solver asynchronously to search for a solution.
 - `depotNode` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The depot node index in the range `[0, numNodes - 1]` where all vehicles start and end at.
 - `timeHorizon` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The last time point the solver uses for time constraints. The solver starts from time point `0` (you can think of this as the start of the work day) and and ends at `timeHorizon` (you can think of this as the end of the work day).
 - `vehicleCapacity` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The maximum capacity for goods each vehicle can carry. Demand at nodes decrease the capacity.
-- `locks` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)** Route locks function the solver uses for locking (sub-) routes into place per vehicle. Takes one parameter: `vehicle` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** vehicle index in the range `[0, numVehicles - 1]`. Return value has to be an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices the vehicle should visit in order. Can be empty. Must not contain the depots.
+- `routeLocks` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** Route locks array the solver uses for locking (sub-) routes into place, per vehicle. Two-dimensional with `routeLocks[vehicle]` being an **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** with node indices `vehicle` has to visit in order. Can be empty. Must not contain the depots.
 
 **Examples**
 
 ```javascript
-var locks = function (vehicle) { return []; };
-
 var vrpSearchOpts = {
   computeTimeLimit: 1000,
   numVehicles: 3,
   depotNode: depotNode,
   timeHorizon: 9 * 60 * 60,
   vehicleCapacity: 3,
-  locks: locks
+  routeLocks: [[], [3, 4], []]
 };
 
 VRP.Solve(vrpSearchOpts, function (err, solution) {

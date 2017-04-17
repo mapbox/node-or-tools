@@ -15,15 +15,22 @@ function manhattanDistance(lhs, rhs) {
   return Math.abs(lhs[0] - rhs[0]) + Math.abs(lhs[1] - rhs[1]);
 }
 
-function costs(s, t) {
-  return manhattanDistance(locations[s], locations[t]);
+var costMatrix = new Array(locations.length);
+
+for (var from = 0; from < locations.length; ++from) {
+  costMatrix[from] = new Array(locations.length);
+
+  for (var to = 0; to < locations.length; ++to) {
+    costMatrix[from][to] = manhattanDistance(locations[from], locations[to]);
+  }
 }
 
 
 tap.test('Test TSP', function(assert) {
+
   var solverOpts = {
     numNodes: locations.length,
-    costs: costs
+    costs: costMatrix
   };
 
   var TSP = new ortools.TSP(solverOpts);
@@ -41,7 +48,7 @@ tap.test('Test TSP', function(assert) {
 
     assert.ok(!solution.find(function (v) { return v == depot; }), 'Depot is not in routes');
 
-    function adjacentCost(acc, v) { return { cost: acc.cost + costs(acc.at, v), at: v }; }
+    function adjacentCost(acc, v) { return { cost: acc.cost + costMatrix[acc.at][v], at: v }; }
     var route = solution.reduce(adjacentCost, { cost: 0, at: depot });
     assert.equal(route.cost, locations.length - 1, 'Costs are minimum Manhattan Distance in location grid');
 

@@ -5,15 +5,17 @@
 
 #include <stdexcept>
 
+#include "params.h"
+
 struct VRPSolverParams {
   VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
   std::int32_t numNodes;
 
-  v8::Local<v8::Function> costFunc;
-  v8::Local<v8::Function> durationFunc;
-  v8::Local<v8::Function> timeWindowFunc;
-  v8::Local<v8::Function> demandFunc;
+  CostMatrix costs;
+  DurationMatrix durations;
+  TimeWindows timeWindows;
+  DemandMatrix demands;
 };
 
 struct VRPSearchParams {
@@ -25,10 +27,85 @@ struct VRPSearchParams {
   std::int32_t timeHorizon;
   std::int32_t vehicleCapacity;
 
-  v8::Local<v8::Function> lockFunc;
+  RouteLocks routeLocks;
 
   v8::Local<v8::Function> callback;
 };
+
+// Caches user provided 2d Array of [Number, Number] into Vectors of Intervals
+inline auto makeTimeWindowsFrom2dArray(std::int32_t n, v8::Local<v8::Array> array) {
+  if (n < 0)
+    throw std::runtime_error{"Negative size"};
+
+  if (static_cast<std::int32_t>(array->Length()) != n)
+    throw std::runtime_error{"Array dimension do not match size"};
+
+  TimeWindows timeWindows(n);
+
+  for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
+    auto inner = Nan::Get(array, atIdx).ToLocalChecked();
+
+    if (!inner->IsArray())
+      throw std::runtime_error{"Expected Array of Arrays"};
+
+    auto innerArray = inner.As<v8::Array>();
+
+    if (static_cast<std::int32_t>(innerArray->Length()) != 2)
+      throw std::runtime_error{"Expected interval Array of shape [start, stop]"};
+
+    auto start = Nan::Get(innerArray, 0).ToLocalChecked();
+    auto stop = Nan::Get(innerArray, 1).ToLocalChecked();
+
+    if (!start->IsNumber() || !stop->IsNumber())
+      throw std::runtime_error{"Expected interval start and stop of type Number"};
+
+    auto startValue = Nan::To<std::int32_t>(start).FromJust();
+    auto stopValue = Nan::To<std::int32_t>(stop).FromJust();
+
+    Interval out{startValue, stopValue};
+
+    timeWindows.at(atIdx) = std::move(out);
+  }
+
+  return timeWindows;
+}
+
+// Caches user provided 2d Array of [Number, ..] into Vectors
+inline auto makeRouteLocksFrom2dArray(std::int32_t n, v8::Local<v8::Array> array) {
+  if (n < 0)
+    throw std::runtime_error{"Negative size"};
+
+  if (static_cast<std::int32_t>(array->Length()) != n)
+    throw std::runtime_error{"Array dimension do not match size"};
+
+  // Note: use (n) for construction because RouteLocks is a weak alias to a std::vector.
+  // Using vec(n) creates a vector of n items, using vec{n} creates a vector with a single element n.
+  RouteLocks routeLocks(n);
+
+  for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
+    auto inner = Nan::Get(array, atIdx).ToLocalChecked();
+
+    if (!inner->IsArray())
+      throw std::runtime_error{"Expected Array of Arrays"};
+
+    auto innerArray = inner.As<v8::Array>();
+
+    LockChain lockChain(innerArray->Length());
+
+    for (std::int32_t lockIdx = 0; lockIdx < static_cast<std::int32_t>(innerArray->Length()); ++lockIdx) {
+      auto node = Nan::Get(innerArray, lockIdx).ToLocalChecked();
+
+      if (!node->IsNumber())
+        throw std::runtime_error{"Expected lock node of type Number"};
+
+      lockChain.at(lockIdx) = Nan::To<std::int32_t>(node).FromJust();
+    }
+
+    routeLocks.at(atIdx) = std::move(lockChain);
+  }
+
+  return routeLocks;
+}
 
 // Impl.
 
@@ -39,30 +116,36 @@ VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto opts = info[0].As<v8::Object>();
 
   auto maybeNumNodes = Nan::Get(opts, Nan::New("numNodes").ToLocalChecked());
-  auto maybeCostFunc = Nan::Get(opts, Nan::New("costs").ToLocalChecked());
-  auto maybeDurationFunc = Nan::Get(opts, Nan::New("durations").ToLocalChecked());
-  auto maybeTimeWindowFunc = Nan::Get(opts, Nan::New("timeWindows").ToLocalChecked());
-  auto maybeDemandFunc = Nan::Get(opts, Nan::New("demands").ToLocalChecked());
+  auto maybeCostMatrix = Nan::Get(opts, Nan::New("costs").ToLocalChecked());
+  auto maybeDurationMatrix = Nan::Get(opts, Nan::New("durations").ToLocalChecked());
+  auto maybeTimeWindowsVector = Nan::Get(opts, Nan::New("timeWindows").ToLocalChecked());
+  auto maybeDemandMatrix = Nan::Get(opts, Nan::New("demands").ToLocalChecked());
 
   auto numNodesOk = !maybeNumNodes.IsEmpty() && maybeNumNodes.ToLocalChecked()->IsNumber();
-  auto costFuncOk = !maybeCostFunc.IsEmpty() && maybeCostFunc.ToLocalChecked()->IsFunction();
-  auto durationFuncOk = !maybeDurationFunc.IsEmpty() && maybeDurationFunc.ToLocalChecked()->IsFunction();
-  auto timeWindowFuncOk = !maybeTimeWindowFunc.IsEmpty() && maybeTimeWindowFunc.ToLocalChecked()->IsFunction();
-  auto demandFuncOk = !maybeDemandFunc.IsEmpty() && maybeDemandFunc.ToLocalChecked()->IsFunction();
+  auto costMatrixOk = !maybeCostMatrix.IsEmpty() && maybeCostMatrix.ToLocalChecked()->IsArray();
+  auto durationMatrixOk = !maybeDurationMatrix.IsEmpty() && maybeDurationMatrix.ToLocalChecked()->IsArray();
+  auto timeWindowsVectorOk = !maybeTimeWindowsVector.IsEmpty() && maybeTimeWindowsVector.ToLocalChecked()->IsArray();
+  auto demandMatrixOk = !maybeDemandMatrix.IsEmpty() && maybeDemandMatrix.ToLocalChecked()->IsArray();
 
-  if (!numNodesOk || !costFuncOk || !durationFuncOk || !timeWindowFuncOk || !demandFuncOk)
+  if (!numNodesOk || !costMatrixOk || !durationMatrixOk || !timeWindowsVectorOk || !demandMatrixOk)
     throw std::runtime_error{"SolverOptions expects"
                              " 'numNodes' (Number),"
-                             " 'costs' (Function),"
-                             " 'durations' (Function),"
-                             " 'timeWindows' (Function),"
-                             " 'demands' (Function)"};
+                             " 'costs' (Array),"
+                             " 'durations' (Array),"
+                             " 'timeWindows' (Array),"
+                             " 'demands' (Array)"};
 
   numNodes = Nan::To<std::int32_t>(maybeNumNodes.ToLocalChecked()).FromJust();
-  costFunc = maybeCostFunc.ToLocalChecked().As<v8::Function>();
-  durationFunc = maybeDurationFunc.ToLocalChecked().As<v8::Function>();
-  timeWindowFunc = maybeTimeWindowFunc.ToLocalChecked().As<v8::Function>();
-  demandFunc = maybeDemandFunc.ToLocalChecked().As<v8::Function>();
+
+  auto costMatrix = maybeCostMatrix.ToLocalChecked().As<v8::Array>();
+  auto durationMatrix = maybeDurationMatrix.ToLocalChecked().As<v8::Array>();
+  auto timeWindowsVector = maybeTimeWindowsVector.ToLocalChecked().As<v8::Array>();
+  auto demandMatrix = maybeDemandMatrix.ToLocalChecked().As<v8::Array>();
+
+  costs = makeMatrixFrom2dArray<CostMatrix>(numNodes, costMatrix);
+  durations = makeMatrixFrom2dArray<DurationMatrix>(numNodes, durationMatrix);
+  timeWindows = makeTimeWindowsFrom2dArray(numNodes, timeWindowsVector);
+  demands = makeMatrixFrom2dArray<DemandMatrix>(numNodes, demandMatrix);
 }
 
 VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -76,23 +159,23 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto maybeDepotNode = Nan::Get(opts, Nan::New("depotNode").ToLocalChecked());
   auto maybeTimeHorizon = Nan::Get(opts, Nan::New("timeHorizon").ToLocalChecked());
   auto maybeVehicleCapacity = Nan::Get(opts, Nan::New("vehicleCapacity").ToLocalChecked());
-  auto maybeLockFunc = Nan::Get(opts, Nan::New("locks").ToLocalChecked());
+  auto maybeRouteLocks = Nan::Get(opts, Nan::New("routeLocks").ToLocalChecked());
 
   auto computeTimeLimitOk = !maybeComputeTimeLimit.IsEmpty() && maybeComputeTimeLimit.ToLocalChecked()->IsNumber();
   auto numVehiclesOk = !maybeNumVehicles.IsEmpty() && maybeNumVehicles.ToLocalChecked()->IsNumber();
   auto depotNodeOk = !maybeDepotNode.IsEmpty() && maybeDepotNode.ToLocalChecked()->IsNumber();
   auto timeHorizonOk = !maybeTimeHorizon.IsEmpty() && maybeTimeHorizon.ToLocalChecked()->IsNumber();
   auto vehicleCapacityOk = !maybeVehicleCapacity.IsEmpty() && maybeVehicleCapacity.ToLocalChecked()->IsNumber();
-  auto lockFuncOk = !maybeLockFunc.IsEmpty() && maybeLockFunc.ToLocalChecked()->IsFunction();
+  auto routeLocksOk = !maybeRouteLocks.IsEmpty() && maybeRouteLocks.ToLocalChecked()->IsArray();
 
-  if (!computeTimeLimitOk || !numVehiclesOk || !depotNodeOk || !timeHorizonOk || !vehicleCapacityOk || !lockFuncOk)
+  if (!computeTimeLimitOk || !numVehiclesOk || !depotNodeOk || !timeHorizonOk || !vehicleCapacityOk || !routeLocksOk)
     throw std::runtime_error{"SearchOptions expects"
                              " 'computeTimeLimit' (Number),"
                              " 'numVehicles' (Number),"
                              " 'depotNode' (Number),"
                              " 'timeHorizon' (Number),"
                              " 'vehicleCapacity' (Number),"
-                             " 'locks (Function)'"};
+                             " 'routeLocks (Array)'"};
 
   computeTimeLimit = Nan::To<std::int32_t>(maybeComputeTimeLimit.ToLocalChecked()).FromJust();
   numVehicles = Nan::To<std::int32_t>(maybeNumVehicles.ToLocalChecked()).FromJust();
@@ -100,7 +183,8 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   timeHorizon = Nan::To<std::int32_t>(maybeTimeHorizon.ToLocalChecked()).FromJust();
   vehicleCapacity = Nan::To<std::int32_t>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
 
-  lockFunc = maybeLockFunc.ToLocalChecked().As<v8::Function>();
+  auto routeLocksArray = maybeRouteLocks.ToLocalChecked().As<v8::Array>();
+  routeLocks = makeRouteLocksFrom2dArray(numVehicles, routeLocksArray);
 
   callback = info[1].As<v8::Function>();
 }

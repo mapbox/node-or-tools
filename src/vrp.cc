@@ -33,15 +33,11 @@ NAN_METHOD(VRP::New) try {
 
   VRPSolverParams userParams{info};
 
-  auto costMatrix = makeMatrixFromFunction<CostMatrix>(userParams.numNodes, userParams.costFunc);
-  auto durationMatrix = makeMatrixFromFunction<DurationMatrix>(userParams.numNodes, userParams.durationFunc);
-  auto timeWindows = makeTimeWindowsFromFunction(userParams.numNodes, userParams.timeWindowFunc);
-  auto demandMatrix = makeMatrixFromFunction<DemandMatrix>(userParams.numNodes, userParams.demandFunc);
+  auto* self = new VRP{std::move(userParams.costs),       //
+                       std::move(userParams.durations),   //
+                       std::move(userParams.timeWindows), //
+                       std::move(userParams.demands)};    //
 
-  auto* self = new VRP{std::move(costMatrix),     //
-                       std::move(durationMatrix), //
-                       std::move(timeWindows),    //
-                       std::move(demandMatrix)};  //
   self->Wrap(info.This());
 
   info.GetReturnValue().Set(info.This());
@@ -75,9 +71,6 @@ NAN_METHOD(VRP::Solve) try {
   const std::int32_t numNodes = self->costs->dim();
   const std::int32_t numVehicles = userParams.numVehicles;
 
-  // Locks depend on the number of vehicles, they can be changed in the Solve function (not in the constructor)
-  auto routeLocks = makeRouteLocksFromFunction(userParams.numVehicles, userParams.lockFunc);
-
   // TODO: this is getting out of hand, clean up, e.g. split into data vs. config
   auto* worker = new VRPWorker{self->costs,                            //
                                self->durations,                        //
@@ -91,7 +84,8 @@ NAN_METHOD(VRP::Solve) try {
                                userParams.depotNode,                   //
                                userParams.timeHorizon,                 //
                                userParams.vehicleCapacity,             //
-                               routeLocks};                            //
+                               std::move(userParams.routeLocks)};      //
+
   Nan::AsyncQueueWorker(worker);
 
 } catch (const std::exception& e) {

@@ -73,15 +73,37 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     process.exit(1);
   }
 
+
   // 9am -- 5pm
   var dayStarts = 0;
   var dayEnds = 8 * 60 * 60;
 
-  function costs(s, t) { return results.durations[s][t]; }
-  function durations(s, t) { return 5 * 60 + results.durations[s][t]; }
-  function timeWindows(at) { return [dayStarts, dayEnds]; }
-  function demands(s, t) { return s === depotIndex ? 0 : 1; }
-  function locks(vehicle) { return []; };
+  var costs = results.durations;
+
+  // Dummy durations, no service times included
+  var durations = results.durations;
+
+  // Dummy time windows for the full day
+  var timeWindows = new Array(results.durations.length);
+
+  for (var at = 0; at < results.durations.length; ++at)
+    timeWindows[at] = [dayStarts, dayEnds];
+
+  // Dummy demands of one except at the depot
+  var demands = new Array(results.durations.length);
+
+  for (var from = 0; from < results.durations.length; ++from) {
+    demands[from] = new Array(results.durations.length);
+
+    for (var to = 0; to < results.durations.length; ++to) {
+      demands[from][to] = (from === depotIndex) ? 0 : 1;
+    }
+  }
+
+  // No route locks per vehicle, let solver decide freely
+  var routeLocks = new Array(numVehicles);
+  routeLocks.fill([]);
+
 
   var solverOpts = {
     numNodes: results.durations.length,
@@ -90,6 +112,7 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     timeWindows: timeWindows,
     demands: demands
   };
+
 
   var VRP = new Solver.VRP(solverOpts);
 
@@ -101,7 +124,7 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     depotNode: depotIndex,
     timeHorizon: timeHorizon,
     vehicleCapacity: vehicleCapacity,
-    locks: locks
+    routeLocks: routeLocks
   };
 
   VRP.Solve(searchOpts, function (err, result) {
