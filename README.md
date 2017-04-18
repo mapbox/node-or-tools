@@ -1,6 +1,6 @@
 # node-or-tools
 
-[![Build Status](https://travis-ci.com/mapbox/node-or-tools.svg?token=hLpUd9oZwpjSs5JzfqFa&branch=master)](https://travis-ci.com/mapbox/node-or-tools)
+[![Build Status](https://travis-ci.org/mapbox/node-or-tools.svg?branch=master)](https://travis-ci.org/mapbox/node-or-tools)
 
 NodeJS bindings for or-tools Travelling Salesman Problem (TSP) and Vehicle Routing Problem (VRP) solvers.
 
