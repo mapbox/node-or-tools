@@ -6,6 +6,8 @@
 
 template <typename T> class Vector {
 public:
+  using Value = T;
+
   Vector() = default;
   Vector(std::int32_t n) { data.resize(n); }
 

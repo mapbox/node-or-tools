@@ -8,6 +8,8 @@ template <typename T> class Matrix {
   static_assert(std::is_arithmetic<T>::value, "Matrix<T> requires T to be integral or floating point");
 
 public:
+  using Value = T;
+
   Matrix() = default;
   Matrix(std::int32_t n_) : n{n_} {
     if (n < 0)

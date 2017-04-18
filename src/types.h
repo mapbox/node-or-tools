@@ -62,4 +62,30 @@ using Solver = ort::Solver;
 using LockChain = std::vector<NodeIndex>;
 using RouteLocks = std::vector<LockChain>;
 
+// Bytes in our type used for internal caching
+
+template <typename T> struct Bytes;
+
+template <> struct Bytes<CostMatrix> {
+  std::int32_t operator()(const CostMatrix& v) const { return v.size() * sizeof(CostMatrix::Value); };
+};
+
+template <> struct Bytes<DurationMatrix> {
+  std::int32_t operator()(const DurationMatrix& v) const { return v.size() * sizeof(DurationMatrix::Value); };
+};
+
+template <> struct Bytes<DemandMatrix> {
+  std::int32_t operator()(const DemandMatrix& v) const { return v.size() * sizeof(DemandMatrix::Value); };
+};
+
+template <> struct Bytes<TimeWindows> {
+  std::int32_t operator()(const TimeWindows& v) const { return v.size() * sizeof(TimeWindows::Value); };
+};
+
+template <> struct Bytes<RouteLocks> {
+  std::int32_t operator()(const RouteLocks& v) const { return v.size() * sizeof(RouteLocks::value_type); };
+};
+
+template <typename T> std::int32_t getBytes(const T& v) { return Bytes<T>{}(v); }
+
 #endif
