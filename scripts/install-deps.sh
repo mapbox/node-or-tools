@@ -27,5 +27,8 @@ fi
 ./third_party/mason/mason install or-tools ${ORTOOLS_RELEASE}
 ./third_party/mason/mason link or-tools ${ORTOOLS_RELEASE}
 
-mkdir -p build/Release/
-cp mason_packages/.link/lib/libortools.* build/Release/
+mkdir -p ./build/Release/
+cp ./mason_packages/.link/lib/libortools.* ./build/Release/
+
+mkdir -p ./lib/binding/
+cp ./mason_packages/.link/lib/libortools.* ./lib/binding/

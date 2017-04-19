@@ -135,7 +135,6 @@ tap.test('Test VRP', function(assert) {
   };
 
   VRP.Solve(searchOpts, function (err, solution) {
-    console.log(solution);
     assert.ifError(err, 'Solution can be found');
 
     assert.type(solution, Object, 'Solution is Object with properties');

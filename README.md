@@ -26,7 +26,10 @@ or if you are root
 
     npm install --unsafe-perm
 
-We ship pre-built native binaries for which you will need a compatible C++ stdlib.
+We ship pre-built native binaries (for Node.js LTS 4 and 6 on Linux and macOS).
+You will need a compatible C++ stdlib. Building from source is supported, too:
+
+    npm install --build-from-source
 
 #### Ubuntu 14.04
 

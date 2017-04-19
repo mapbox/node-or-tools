@@ -1,0 +1,7 @@
+*
+!API.md
+!example/*
+!lib/*.js
+!LICENSE
+!package.json
+!test
