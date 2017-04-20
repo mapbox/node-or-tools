@@ -31,6 +31,10 @@ We ship pre-built native binaries (for Node.js LTS 4 and 6 on Linux and macOS).
 You will need a compatible C++ stdlib, see below if you encounter issues.
 Building from source is supported via the `--build-from-source` flag.
 
+#### Ubuntu 16.04
+
+You're fine. The system's stdlib is recent enough.
+
 #### Ubuntu 14.04
 
 ```
@@ -40,18 +44,9 @@ apt update
 apt install libstdc++-5-dev
 ```
 
-#### Ubuntu 16.04
-
-You're fine. The system's stdlib is recent enough.
-
-
 ### Tests
 
     npm test
-
-See
-- [npmjs.com/package/tap](https://www.npmjs.com/package/tap)
-- [node-tap.org](http://www.node-tap.org)
 
 
 ### Building - Undefined Symbols
@@ -64,23 +59,29 @@ If you see `undefined symbols` errors force the stdlib to use the old ABI by set
 
 and re-build the project.
 
-### Publishing Releases
+### Releases
 
 - Push commit with `[publish binary]`
 - Wait for Travis to build and publish binaries
-- Then `npm login`, `npm publish`
+- Tag the release `git tag vx.y.z -a`, `git push origin vx.y.z`
+- Then `npm login`, `npm publish` to npm
+- Make Github Release for tag
 
 ### References
 
 Routing Interfaces
 - [RoutingModel](https://github.com/google/or-tools/blob/v5.1/src/constraint_solver/routing.h#L14)
-- [RoutingSearchParameters](https://github.com/google/or-tools/blob/master/src/constraint_solver/routing_parameters.proto#L28)
-- [RoutingModelParameters](https://github.com/google/or-tools/blob/master/src/constraint_solver/routing_parameters.proto#L263)
+- [RoutingSearchParameters](https://github.com/google/or-tools/blob/v5.1/src/constraint_solver/routing_parameters.proto#L28-L29)
+- [RoutingModelParameters](https://github.com/google/or-tools/blob/v5.1/src/constraint_solver/routing_parameters.proto#L263-L264)
 
 More or-tools
 - Manual: [TSP](https://acrogenesis.com/or-tools/documentation/user_manual/manual/TSP.html) and [VRP](https://acrogenesis.com/or-tools/documentation/user_manual/manual/VRP.html)
 - [Examples](https://github.com/google/or-tools/tree/v5.1/examples/cpp)
-- [Reference](https://developers.google.com/optimization/reference/) - Main entry is `RoutingModel` in `constraint_solver/routing.h`
+- [Reference](https://developers.google.com/optimization/reference/)
+
+Tests
+- [npmjs.com/package/tap](https://www.npmjs.com/package/tap)
+- [node-tap.org](http://www.node-tap.org)
 
 Node bindings
 - [NAN2](https://github.com/nodejs/nan#api)
