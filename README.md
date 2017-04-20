@@ -11,25 +11,25 @@ We recommend using the [Mapbox Directions Matrix](https://www.mapbox.com/api-doc
 
 [![Example](https://raw.githubusercontent.com/mapbox/node-or-tools/master/example/solution.png?token=AAgLiX1m1BDa8ll0Lsk0xc6fz0RgQA1Lks5Y-VmAwA)](https://github.com/mapbox/node-or-tools/blob/master/example/solution.geojson)
 
-### Installing
+### Quick Start
 
-Update your Node.js and NPM versions via [nvm](https://github.com/creationix/nvm).
+    npm install node_or_tools
 
-    nvm install 4
-    nvm use 4
+```c++
+var ortools = require('node_or_tools')
 
-Then
+var VRP = new ortools.VRP(solverOpts);
 
-    npm install
+VRP.Solve(searchOpts, function (err, solution) {
+  // ..
+});
+```
 
-or if you are root
-
-    npm install --unsafe-perm
+See [API.md](API.md) for interface documentation and [the example](./example/README.md) for a small self-contained example.
 
 We ship pre-built native binaries (for Node.js LTS 4 and 6 on Linux and macOS).
-You will need a compatible C++ stdlib. Building from source is supported, too:
-
-    npm install --build-from-source
+You will need a compatible C++ stdlib, see below if you encounter issues.
+Building from source is supported via the `--build-from-source` flag.
 
 #### Ubuntu 14.04
 

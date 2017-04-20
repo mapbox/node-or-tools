@@ -4,4 +4,4 @@
 !lib/*.js
 !LICENSE
 !package.json
-!test
+!test/*
