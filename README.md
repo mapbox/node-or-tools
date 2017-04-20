@@ -64,6 +64,12 @@ If you see `undefined symbols` errors force the stdlib to use the old ABI by set
 
 and re-build the project.
 
+### Publishing Releases
+
+- Push commit with `[publish binary]`
+- Wait for Travis to build and publish binaries
+- Then `npm login`, `npm publish`
+
 ### References
 
 Routing Interfaces
