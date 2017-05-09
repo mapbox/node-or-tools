@@ -130,11 +130,14 @@ struct VRPWorker final : Nan::AsyncWorker {
     auto* solver = model.solver();
 
     for (std::int32_t atIdx = 0; atIdx < pickups.size(); ++atIdx) {
-      auto* sameRouteCt = solver->MakeEquality(model.VehicleVar(model.NodeToIndex(pickups.at(atIdx))),     //
-                                               model.VehicleVar(model.NodeToIndex(deliveries.at(atIdx)))); //
+      const auto pickupIndex = model.NodeToIndex(pickups.at(atIdx));
+      const auto deliveryIndex = model.NodeToIndex(deliveries.at(atIdx));
 
-      auto* pickupBeforeDeliveryCt = solver->MakeLessOrEqual(timeDimension.CumulVar(pickups.at(atIdx).value()),     //
-                                                             timeDimension.CumulVar(deliveries.at(atIdx).value())); //
+      auto* sameRouteCt = solver->MakeEquality(model.VehicleVar(pickupIndex),    //
+                                               model.VehicleVar(deliveryIndex)); //
+
+      auto* pickupBeforeDeliveryCt = solver->MakeLessOrEqual(timeDimension.CumulVar(pickupIndex),    //
+                                                             timeDimension.CumulVar(deliveryIndex)); //
 
       solver->AddConstraint(sameRouteCt);
       solver->AddConstraint(pickupBeforeDeliveryCt);
