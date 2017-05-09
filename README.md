@@ -61,9 +61,9 @@ and re-build the project.
 
 ### Releases
 
-- Push commit with `[publish binary]`
-- Wait for Travis to build and publish binaries
-- Tag the release `git tag vx.y.z -a`, `git push origin vx.y.z`
+- Push commit with `[publish binary]` on master
+- Wait for Travis to build and publish binaries, check the AWS bucket if in doubt
+- Tag the release `git tag vx.y.z -a` on master, `git push origin vx.y.z`
 - Then `npm login`, `npm publish` to npm
 - Make Github Release for tag
 
