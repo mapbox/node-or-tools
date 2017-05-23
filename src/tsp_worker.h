@@ -10,16 +10,18 @@
 #include <utility>
 #include <vector>
 
-struct TSPWorker final : Nan::AsyncWorker {
-  using Base = Nan::AsyncWorker;
+struct TSPWorker final {
 
   TSPWorker(std::shared_ptr<const CostMatrix> costs_, Nan::Callback* callback, const RoutingModelParameters& modelParams_,
             const RoutingSearchParameters& searchParams_, std::int32_t numNodes, std::int32_t numVehicles,
             std::int32_t vehicleDepot)
-      : Base(callback), costs{std::move(costs_)}, model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
-        modelParams{modelParams_}, searchParams{searchParams_} {}
+      : mCallback(callback), costs{std::move(costs_)}, model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
+        modelParams{modelParams_}, searchParams{searchParams_}
+    {
+        Execute();
+    }
 
-  void Execute() override {
+  void Execute() {
     auto costAdaptor = makeBinaryAdaptor(*costs);
     auto costEvaluator = makeCallback(costAdaptor);
 
@@ -27,16 +29,18 @@ struct TSPWorker final : Nan::AsyncWorker {
 
     const auto* assignment = model.SolveWithParameters(searchParams);
 
-    if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
-      SetErrorMessage("Unable to find a solution");
+//    if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
+//      SetErrorMessage("Unable to find a solution");
 
     model.AssignmentToRoutes(*assignment, &routes);
 
-    if (routes.size() != 1)
-      SetErrorMessage("Expected route for one vehicle");
+//    if (routes.size() != 1)
+//      SetErrorMessage("Expected route for one vehicle");
+      
+    HandleOKCallback();
   }
 
-  void HandleOKCallback() override {
+  void HandleOKCallback() {
     Nan::HandleScope scope;
 
     const auto& route = routes.front();
@@ -49,7 +53,7 @@ struct TSPWorker final : Nan::AsyncWorker {
     const auto argc = 2u;
     v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoute};
 
-    callback->Call(argc, argv);
+    mCallback->Call(argc, argv);
   }
 
   std::shared_ptr<const CostMatrix> costs; // inc ref count to keep alive for async cb
@@ -58,6 +62,7 @@ struct TSPWorker final : Nan::AsyncWorker {
   RoutingModelParameters modelParams;
   RoutingSearchParameters searchParams;
 
+  Nan::Callback* mCallback;
   // Stores solution until we can translate back to v8 objects
   std::vector<std::vector<NodeIndex>> routes;
 };

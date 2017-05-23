@@ -73,7 +73,6 @@ NAN_METHOD(TSP::Solve) try {
                                numNodes,                               //
                                numVehicles,                            //
                                userParams.depotNode};                  //
-  Nan::AsyncQueueWorker(worker);
 
 } catch (const std::exception& e) {
   return Nan::ThrowError(e.what());
