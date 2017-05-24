@@ -29,18 +29,21 @@ struct TSPWorker final {
 
     const auto* assignment = model.SolveWithParameters(searchParams);
 
-//    if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS))
-//      SetErrorMessage("Unable to find a solution");
+    std::string jsError;
+    if (!assignment || (model.status() != RoutingModel::Status::ROUTING_SUCCESS)) {
+        jsError = "Unable to find a solution";
+    }
 
     model.AssignmentToRoutes(*assignment, &routes);
 
-//    if (routes.size() != 1)
-//      SetErrorMessage("Expected route for one vehicle");
+    if (routes.size() != 1) {
+        jsError = "Expected route for one vehicle";
+    }
       
-    HandleOKCallback();
+    HandleOKCallback(jsError);
   }
 
-  void HandleOKCallback() {
+  void HandleOKCallback(std::string jsError) {
     Nan::HandleScope scope;
 
     const auto& route = routes.front();
@@ -51,7 +54,8 @@ struct TSPWorker final {
       (void)Nan::Set(jsRoute, j, Nan::New<v8::Number>(route[j].value()));
 
     const auto argc = 2u;
-    v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoute};
+    v8::Local<v8::String> errorStr = v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), jsError.c_str());
+    v8::Local<v8::Value> argv[argc] = {errorStr, jsRoute};
 
     mCallback->Call(argc, argv);
   }
