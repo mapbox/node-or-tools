@@ -89,14 +89,27 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
   for (var at = 0; at < results.durations.length; ++at)
     timeWindows[at] = [dayStarts, dayEnds];
 
-  // Dummy demands of one except at the depot
   var demands = new Array(results.durations.length);
 
-  for (var from = 0; from < results.durations.length; ++from) {
-    demands[from] = new Array(results.durations.length);
+  // made up values that trigger segfault
+  var Pickups = [ 6, 5, 5, 1, 0, 6, 5];
+  var Deliveries = [ 4, 4, 3, 2, 2, 4, 7];
 
-    for (var to = 0; to < results.durations.length; ++to) {
-      demands[from][to] = (from === depotIndex) ? 0 : 1;
+  for (let from = 0; from < results.durations.length; ++from) {
+    demands[from] = new Array(results.durations.length);
+    if (Pickups && Deliveries) {
+        demands[from].fill(0);
+        for (let it = 0; it < Pickups.length; ++it) {
+            if (Pickups[it] === from) {
+                let to = Deliveries[it];
+                demands[from][to] = demands[from][to] ? demands[from][to] + 1 : 1;
+            }
+        }
+    } else {
+      // Dummy demands of one except at the depot
+      for (var to = 0; to < results.durations.length; ++to) {
+        demands[from][to] = (from === depotIndex) ? 0 : 1;
+      }
     }
   }
 
@@ -125,8 +138,8 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     timeHorizon: timeHorizon,
     vehicleCapacity: vehicleCapacity,
     routeLocks: routeLocks,
-    pickups: [],
-    deliveries: []
+    pickups: Pickups,
+    deliveries: Deliveries
   };
 
   VRP.Solve(searchOpts, function (err, result) {
