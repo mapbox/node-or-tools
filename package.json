@@ -30,7 +30,9 @@
     "tap": "^10.3",
     "mapbox-sdk-js": "git://github.com/mapbox/mapbox-sdk-js.git#758572e9d5287023451f91a4b76e7e85c785189d"
   },
-  "bundledDependencies": ["node-pre-gyp"],
+  "bundledDependencies": [
+    "node-pre-gyp"
+  ],
   "binary": {
     "module_name": "node_or_tools",
     "module_path": "./lib/binding/",
