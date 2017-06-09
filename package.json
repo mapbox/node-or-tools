@@ -27,8 +27,7 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.42.0",
-    "tap": "^10.3",
-    "mapbox-sdk-js": "git://github.com/mapbox/mapbox-sdk-js.git#758572e9d5287023451f91a4b76e7e85c785189d"
+    "tap": "^10.3"
   },
   "bundledDependencies": [
     "node-pre-gyp"

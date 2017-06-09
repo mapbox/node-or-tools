@@ -72,7 +72,14 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
     console.error('Error: distance matrix is not complete');
     process.exit(1);
   }
-
+  results.durations =[ [ 0, 957, 748, 570, 706, 574, 893, 187 ],
+                       [ 975, 0, 436, 894, 293, 446, 760, 901 ],
+                       [ 814, 399, 0, 458, 352, 231, 876, 675 ],
+                       [ 526, 841, 441, 0, 785, 598, 1266, 457 ],
+                       [ 733, 328, 351, 748, 0, 231, 625, 659 ],
+                       [ 713, 360, 174, 577, 270, 0, 845, 639 ],
+                       [ 917, 919, 1000, 1357, 733, 931, 0, 996 ],
+                       [ 246, 901, 626, 383, 673, 540, 986, 0 ] ]
 
   // 9am -- 5pm
   var dayStarts = 0;
