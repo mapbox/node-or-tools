@@ -3,10 +3,11 @@
 set -eu
 set -o pipefail
 
-# Versions
-MASON_RELEASE="v0.7.0"
+# Point to or-tools upstream mason package commit until we have a
+# new mason release. See https://github.com/mapbox/mason/pull/426
+MASON_RELEASE="0465138"
 SPARSEHASH_RELEASE="2.0.2"
-ORTOOLS_RELEASE="5.1"
+ORTOOLS_RELEASE="6.0"
 PROTOBUF_RELEASE="3.0.0"
 GFLAGS_RELEASE="2.1.2"
 
