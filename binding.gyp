@@ -27,10 +27,12 @@
             'product_dir': '<(module_path)',
             'dependencies': [ 'action_before_build' ],
             'link_settings': {
-                'libraries': ['-lortools'],
-                'library_dirs': [
-                  '<(module_root_dir)/mason_packages/.link/lib'
-                ]
+                'libraries': [
+                  '<(module_root_dir)/mason_packages/.link/lib/libortools.a',
+                  '<(module_root_dir)/mason_packages/.link/lib/libprotobuf.a',
+                  '<(module_root_dir)/mason_packages/.link/lib/libgflags.a',
+                  '-lz',
+                ],
             },
             'sources': [
                 'src/main.cc',
@@ -42,7 +44,6 @@
             ],
             'conditions': [
                 ['OS == "linux"', {
-                    'ldflags': ['-Wl,-z,origin -Wl,-rpath=\$$ORIGIN'],
                     'cflags': [
                         '<@(system_includes)'
                     ]
