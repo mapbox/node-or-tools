@@ -69,7 +69,7 @@ var timeWindows = new Array(locations.length);
 
 for (var at = 0; at < locations.length; ++at) {
   if (at === depot) {
-    timeWindows[at] = [dayStarts, dayEnds];
+    timeWindows[at] = [[dayStarts, dayEnds]];
     continue;
   }
 
@@ -79,7 +79,7 @@ for (var at = 0; at < locations.length; ++at) {
   var start = rand() * (latest - earliest) + earliest;
   var stop = rand() * (latest - start) + start;
 
-  timeWindows[at] = [start, stop];
+  timeWindows[at] = [[start, stop]];
 }
 
 

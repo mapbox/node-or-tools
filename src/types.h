@@ -34,7 +34,7 @@ struct Interval {
   std::int32_t stop;
 };
 
-using TimeWindows = NewType<Vector<Interval>, struct TimeWindowsTag>::Type;
+using TimeWindows = NewType<Vector<Vector<Interval>>, struct TimeWindowsTag>::Type;
 
 namespace ort = operations_research;
 

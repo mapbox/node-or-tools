@@ -87,7 +87,7 @@ MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
   var timeWindows = new Array(results.durations.length);
 
   for (var at = 0; at < results.durations.length; ++at)
-    timeWindows[at] = [dayStarts, dayEnds];
+    timeWindows[at] = [[dayStarts, dayEnds]];
 
   // Dummy demands of one except at the depot
   var demands = new Array(results.durations.length);
