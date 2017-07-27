@@ -42,7 +42,7 @@
             ],
             'conditions': [
                 ['OS == "linux"', {
-                    'ldflags': ['-Wl,-z,origin -Wl,-rpath=\$$ORIGIN', '-Wl, -static-libstdc++'],
+                    'ldflags': ['-Wl,-z,origin -Wl,-rpath=\$$ORIGIN'],
                     'cflags': [
                         '<@(system_includes)'
                     ]
