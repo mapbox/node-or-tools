@@ -32,7 +32,7 @@ struct VRPWorker final : Nan::AsyncWorker {
             std::int32_t numVehicles_,                        //
             std::int32_t vehicleDepot_,                       //
             std::int32_t timeHorizon_,                        //
-            std::int32_t vehicleCapacity_,                    //
+            std::vector<int64> vehicleCapacity_,              //   type changed to vector int64
             RouteLocks routeLocks_,                           //
             Pickups pickups_,                                 //
             Deliveries deliveries_)                           //
@@ -47,7 +47,7 @@ struct VRPWorker final : Nan::AsyncWorker {
         numVehicles{numVehicles_},
         vehicleDepot{vehicleDepot_},
         timeHorizon{timeHorizon_},
-        vehicleCapacity{vehicleCapacity_},
+        vehicleCapacity{std::move(vehicleCapacity_)},
         routeLocks{std::move(routeLocks_)},
         pickups{std::move(pickups_)},
         deliveries{std::move(deliveries_)},
@@ -120,14 +120,40 @@ struct VRPWorker final : Nan::AsyncWorker {
     auto demandAdaptor = makeBinaryAdaptor(*demands);
     auto demandCallback = makeCallback(demandAdaptor);
 
-    const static auto kDimensionCapacity = "capacity";
+ 
+    //std::vector<int64> vehicle_capacities
+    // vehicle capacity call back  
 
-    model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
+  //auto vehicleCapacityAdaptor = makeUnaryAdaptor(vehicleCapacity);
+  //  auto vehicleCapacityCallback = makeCallback(vehicleCapacityAdaptor);
+
+// if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+//       return SetErrorMessage("Unable to find a solution -2");
+
+
+    const static std::string& kDimensionCapacity = "capacity";
+
+    //function for handling different capacitated vehicles
+    model.AddDimensionWithVehicleCapacity(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
+     const auto& capacityDimension = model.GetDimensionOrDie(kDimensionCapacity);
+
+     // if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+     //  return SetErrorMessage("Unable to find a solution -1");
+
+     std::cout<<"hello ";
+    //old  
+    //const static auto kDimensionCapacity = "capacity";
+
+    //model.AddDimension(demandCallback, /*slack=*/0, vehicleCapacity, /*fix_start_cumul_to_zero=*/true, kDimensionCapacity);
     // const auto& capacityDimension = model.GetDimensionOrDie(kDimensionCapacity);
+
+
 
     // Pickup and Deliveries
 
     auto* solver = model.solver();
+    // if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+    //   return SetErrorMessage("Unable to find a solution 0");
 
     for (std::int32_t atIdx = 0; atIdx < pickups.size(); ++atIdx) {
       const auto pickupIndex = model.NodeToIndex(pickups.at(atIdx));
@@ -144,13 +170,21 @@ struct VRPWorker final : Nan::AsyncWorker {
 
       model.AddPickupAndDelivery(pickups.at(atIdx), deliveries.at(atIdx));
     }
+    // if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+    //   return SetErrorMessage("Unable to find a solution 0");
 
     // Done with modifications to the routing model
 
     model.CloseModel();
 
+    // if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+    //   return SetErrorMessage("Unable to find a solution 1");
+
     // Locking routes into place needs to happen after the model is closed and the underlying vars are established
     const auto validLocks = model.ApplyLocksToAllVehicles(routeLocks, /*close_routes=*/false);
+
+    // if(model.status() != RoutingModel::Status::ROUTING_SUCCESS)
+    //   return SetErrorMessage("Unable to find a solution 2");
 
     if (!validLocks)
       return SetErrorMessage("Invalid locks");
@@ -238,7 +272,7 @@ struct VRPWorker final : Nan::AsyncWorker {
   std::int32_t numVehicles;
   std::int32_t vehicleDepot;
   std::int32_t timeHorizon;
-  std::int32_t vehicleCapacity;
+  std::vector<int64> vehicleCapacity;   // changed type of vehicle capacity from int32_t to vector<int64>
 
   const RouteLocks routeLocks;
 
