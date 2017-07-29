@@ -18,6 +18,7 @@
   "scripts": {
     "prepublish": "npm ls",
     "install": "node-pre-gyp install --fallback-to-build",
+    "build-source": "node-pre-gyp install --build-from-source",   
     "clean": "node-pre-gyp clean",
     "test": "tap -Rspec test/*.js"
   },
