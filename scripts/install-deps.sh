@@ -3,10 +3,11 @@
 set -eu
 set -o pipefail
 
-# Versions
-MASON_RELEASE="v0.7.0"
+# Point to or-tools upstream mason package commit until we have a
+# new mason release. See https://github.com/mapbox/mason/pull/426
+MASON_RELEASE="ca9b4cb"
 SPARSEHASH_RELEASE="2.0.2"
-ORTOOLS_RELEASE="5.1"
+ORTOOLS_RELEASE="6.0"
 PROTOBUF_RELEASE="3.0.0"
 GFLAGS_RELEASE="2.1.2"
 
@@ -27,8 +28,7 @@ fi
 ./third_party/mason/mason install or-tools ${ORTOOLS_RELEASE}
 ./third_party/mason/mason link or-tools ${ORTOOLS_RELEASE}
 
-mkdir -p ./build/Release/
-cp ./mason_packages/.link/lib/libortools.* ./build/Release/
 
-mkdir -p ./lib/binding/
-cp ./mason_packages/.link/lib/libortools.* ./lib/binding/
+# We ship debug binaries with mason but for production builds we just strip debug symbols out.
+# In case you need debug symbols just comment out the following line and `npm --build-from-source`.
+find mason_packages/ -type f -name 'libortools.*' -exec strip --strip-unneeded {} \;

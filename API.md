@@ -9,6 +9,9 @@ Heuristically solves the Travelling Salesman Problem (TSP) with a single vehicle
 For multiple vehicles or additional constraints see the [Vehicle Routing Problem (VRP)](#vrp).
 The TSP solver is split into two: the `TSP` constructor taking constructor-specific options and the asynchronous `Solve` function taking search-specific options.
 
+Note: even though the bindings take JavaScript **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** types internally the solver works with integral types.
+Make sure to convert your floating point types into integral types, otherwise truncation will happen transparently.
+
 
 ## Constructor
 
@@ -80,6 +83,8 @@ TSP.Solve(tspSearchOpts, function (err, solution) {
 Heuristically solves the Vehicle Routing Problem (VRP) with multiple vehicles and constraints (time windows, capacities and more).
 The VRP solver is split into two: the `VRP` constructor taking constructor-specific options and the asynchronous `Solve` function taking search-specific options.
 
+Note: even though the bindings take JavaScript **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** types internally the solver works with integral types.
+Make sure to convert your floating point types into integral types, otherwise truncation will happen transparently.
 
 ## Constructor
 
