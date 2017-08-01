@@ -5,7 +5,11 @@
       '-std=c++14',
       '-Wall',
       '-Wextra',
-      '-D_GLIBCXX_USE_CXX11_ABI=0'
+      '-ffunction-sections -fdata-sections',
+      '-D_GLIBCXX_USE_CXX11_ABI=0',
+    ],
+    'ldflags': [
+      '-Wl,--gc-sections'
     ],
     'cflags_cc!': ['-std=gnu++0x','-fno-rtti', '-fno-exceptions'],
     'configurations': {

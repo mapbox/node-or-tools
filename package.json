@@ -1,6 +1,6 @@
 {
   "name": "node_or_tools",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Native module for the or-tools TSP / VRP solvers",
   "url": "https://github.com/mapbox/node-or-tools",
   "repository": {
@@ -16,7 +16,6 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "scripts": {
-    "prepublish": "npm ls",
     "install": "node-pre-gyp install --fallback-to-build",
     "build-source": "node-pre-gyp install --build-from-source",   
     "clean": "node-pre-gyp clean",
@@ -30,7 +29,9 @@
     "aws-sdk": "^2.42.0",
     "tap": "^10.3"
   },
-  "bundledDependencies": ["node-pre-gyp"],
+  "bundledDependencies": [
+    "node-pre-gyp"
+  ],
   "binary": {
     "module_name": "node_or_tools",
     "module_path": "./lib/binding/",
