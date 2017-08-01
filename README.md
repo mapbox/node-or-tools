@@ -29,7 +29,7 @@ See [API.md](API.md) for interface documentation and [the example](./example/REA
 
 We ship pre-built native binaries (for Node.js LTS 4 and 6 on Linux and macOS).
 You will need a compatible C++ stdlib, see below if you encounter issues.
-Building from source is supported via the `--build-from-source` flag.
+Building from source is supported via the `--build-from-source` flag (node-pre-gyp install --build-from-source) 
 
 #### Ubuntu 16.04
 
