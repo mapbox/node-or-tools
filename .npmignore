@@ -8,5 +8,5 @@
 !package-lock.json
 !test/*
 !binding.gyp
-!common.gyp
+!common.gypi
 !scripts/install-deps.sh

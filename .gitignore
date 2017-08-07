@@ -6,3 +6,4 @@ npm-debug.log
 .nyc*
 coverage
 lib/binding
+*.tgz
