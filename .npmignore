@@ -9,4 +9,5 @@
 !test/*
 !binding.gyp
 !common.gypi
+!src/*
 !scripts/install-deps.sh
