@@ -27,9 +27,16 @@ matrix:
       node_js: 6
       sudo: false
       env: CC='clang-4.0' CXX='clang++-4.0'
+    - os: linux
+      node_js: 8
+      sudo: false
+      env: CC='clang-4.0' CXX='clang++-4.0'
     - os: osx
       osx_image: xcode8.2
       node_js: 4
     - os: osx
       osx_image: xcode8.2
       node_js: 6
+    - os: osx
+      osx_image: xcode8.2
+      node_js: 8
