@@ -62,7 +62,7 @@ function hasNoRouteFound(matrix) {
 }
 
 
-MbxClient.getDistances(locations, {profile: profile}, function(err, results) {
+MbxClient.getMatrix(locations.map(function (coord) { return { longitude: coord[0], latitude: coord[1] } }), {profile: profile}, function(err, results) {
   if (err) {
     console.error('Error: ' + err.message);
     process.exit(1);
