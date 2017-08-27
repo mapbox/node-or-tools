@@ -5,6 +5,6 @@
   "author": "Daniel J. Hofmann",
   "license": "MIT",
   "dependencies": {
-    "mapbox": "^1.0.0-beta8"
+    "mapbox": "1.0.0-beta8"
   }
 }
