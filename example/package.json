@@ -5,6 +5,9 @@
   "author": "Daniel J. Hofmann",
   "license": "MIT",
   "dependencies": {
+    "@turf/helpers": "^4.6.0",
+    "async": "^2.5.0",
+    "colorbrewer": "^1.0.0",
     "mapbox": "1.0.0-beta8"
   }
 }
