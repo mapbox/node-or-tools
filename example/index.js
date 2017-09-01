@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 // Query the Mapbox Distance Matrix API, run VRP solver on its output.
@@ -18,6 +20,16 @@ var util = require('util');
 
 var Solver = require('../');
 var Mapbox = require('mapbox');
+var turf = {
+  feature: require('@turf/helpers').feature,
+  point: require('@turf/helpers').point,
+  featureCollection: require('@turf/helpers').featureCollection
+};
+var fs = require('fs');
+var async = {
+  eachOf: require('async').eachOf
+};
+var colors = require('colorbrewer').Dark2[8];
 
 
 // Here are all the tunables you might be interested in
@@ -135,15 +147,33 @@ MbxClient.getMatrix(locations.map(function (coord) { return { longitude: coord[0
       process.exit(1);
     }
 
+    var solutionFeatures = [];
+    // add depot to solution file
+    solutionFeatures.push(turf.point(locations[0], {
+      'marker-color': '#333',
+      'marker-symbol': 'building'
+    }));
+
     console.log(util.inspect(result, {showHidden: false, depth: null}));
 
+    // add route points to solution file
+    result.routes.forEach(function (route, routeIndex) {
+      route.forEach(function (stop, stopIndex) {
+        solutionFeatures.push(turf.point(locations[stop], {
+          route: routeIndex + 1,
+          stop: stopIndex + 1,
+          'marker-color': colors[routeIndex % colors.length],
+          'marker-symbol': stopIndex + 1
+        }));
+      });
+    });
+
     // Now that we have the location orders per vehicle make route requests to extract their geometry
-    for (var i = 0; i < result.routes.length; ++i) {
-      var route = result.routes[i];
+    async.eachOf(result.routes, function (route, index, callback) {
 
       // Unused vehicle
       if (route.length === 0)
-        continue;
+        callback();
 
       var waypoints = route.map(function(idx) {
         return {'longitude': locations[idx][0], 'latitude': locations[idx][1]};
@@ -160,9 +190,21 @@ MbxClient.getMatrix(locations.map(function (coord) { return { longitude: coord[0
           process.exit(1);
         }
 
-        console.log(results.routes[0].geometry);
-      });
-    }
+        // add this route to the solution file
+        solutionFeatures.push(turf.feature(results.routes[0].geometry, {
+          route: index + 1,
+          distance: results.routes[0].distance,
+          duration: results.routes[0].duration,
+          stroke: colors[index % colors.length],
+          'stroke-width': 4
+        }));
 
+        callback();
+      });
+    }, function (err) {
+      // write the solution.geojson file
+      var solution = turf.featureCollection(solutionFeatures);
+      fs.writeFileSync('solution.geojson', JSON.stringify(solution, null, 4));
+    });
   });
 });
