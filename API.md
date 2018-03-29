@@ -142,7 +142,7 @@ var vrpSearchOpts = {
   depotNode: depotNode,
   timeHorizon: 9 * 60 * 60,
   vehicleCapacity: 3,
-  routeLocks: [[], [3, 4], []]
+  routeLocks: [[], [3, 4], []],
   pickups: [4, 9],
   deliveries: [12, 8]
 };
