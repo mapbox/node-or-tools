@@ -21,12 +21,16 @@
     "test": "tap -Rspec test/*.js"
   },
   "dependencies": {
+    "mason-js-sdk": "~0.1.4",
     "nan": "^2.6",
     "node-pre-gyp": "^0.6.34"
   },
   "devDependencies": {
     "aws-sdk": "^2.42.0",
-    "tap": "^10.3"
+    "tape": "^4.5.1",
+    "d3-queue": "^3.0.1",
+    "minimist": "~1.2.0",
+    "bytes": "^2.4.0"
   },
   "bundledDependencies": [
     "node-pre-gyp"

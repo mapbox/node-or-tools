@@ -16,9 +16,15 @@
           'actions': [
             {
               'action_name': 'install-deps',
-              'inputs': ['./scripts/install-deps.sh'],
+              'inputs': ['./node_modules/.bin/mason-js'],
               'outputs': ['./mason_packages'],
-              'action': ['./scripts/install-deps.sh']
+              'action': ['./node_modules/.bin/mason-js', 'install']
+            },
+            {
+              'action_name': 'link_deps',
+              'inputs': ['./node_modules/.bin/mason-js'],
+              'outputs': ['./mason_packages/.link'],
+              'action': ['./node_modules/.bin/mason-js', 'link']
             }
           ]
         },
