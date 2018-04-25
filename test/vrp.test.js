@@ -1,4 +1,4 @@
-var tap = require('tap');
+var test = require('tape');
 var ortools = require('..')
 
 
@@ -97,7 +97,7 @@ for (var from = 0; from < locations.length; ++from) {
 }
 
 
-tap.test('Test VRP', function(assert) {
+test('Test VRP', function(assert) {
 
   var solverOpts = {
     numNodes: locations.length,
@@ -137,9 +137,9 @@ tap.test('Test VRP', function(assert) {
   VRP.Solve(searchOpts, function (err, solution) {
     assert.ifError(err, 'Solution can be found');
 
-    assert.type(solution, Object, 'Solution is Object with properties');
-    assert.type(solution.routes, Array, 'Routes in solution is Array with routes per vehicle');
-    assert.type(solution.times, Array, 'Times in solution is Array with time windows per vehicle');
+    assert.ok(solution instanceof Object, 'Solution is Object with properties');
+    assert.ok(solution.routes instanceof Array, 'Routes in solution is Array with routes per vehicle');
+    assert.ok(solution.times instanceof Array, 'Times in solution is Array with time windows per vehicle');
 
     assert.equal(solution.routes.length, numVehicles, 'Number of routes is number of vehicles');
     assert.equal(solution.times.length, numVehicles, 'Number of time windows in number of vehicles');

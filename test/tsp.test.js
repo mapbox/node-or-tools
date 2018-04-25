@@ -1,4 +1,4 @@
-var tap = require('tap');
+var test = require('tape');
 var ortools = require('..')
 
 
@@ -26,7 +26,7 @@ for (var from = 0; from < locations.length; ++from) {
 }
 
 
-tap.test('Test TSP', function(assert) {
+test('Test TSP', function(assert) {
 
   var solverOpts = {
     numNodes: locations.length,
@@ -43,7 +43,7 @@ tap.test('Test TSP', function(assert) {
   TSP.Solve(searchOpts, function (err, solution) {
     assert.ifError(err, 'Solution can be found');
 
-    assert.type(solution, Array, 'Solution is Array of locations');
+    assert.ok(solution instanceof Array, 'Solution is Array of locations');
     assert.equal(solution.length, locations.length - 1, 'Number of locations in route is number of locations without depot');
 
     assert.ok(!solution.find(function (v) { return v == depot; }), 'Depot is not in routes');
