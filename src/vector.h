@@ -4,20 +4,21 @@
 #include <cstdint>
 #include <vector>
 
-template <typename T> class Vector {
-public:
-  using Value = T;
+template <typename T>
+class Vector {
+  public:
+    using Value = T;
 
-  Vector() = default;
-  Vector(std::int32_t n) { data.resize(n); }
+    Vector() = default;
+    Vector(std::int32_t n) { data.resize(n); }
 
-  std::int32_t size() const { return data.size(); }
+    std::int32_t size() const { return data.size(); }
 
-  T& at(std::int32_t x) { return data.at(x); }
-  const T& at(std::int32_t x) const { return data.at(x); }
+    T& at(std::int32_t x) { return data.at(x); }
+    const T& at(std::int32_t x) const { return data.at(x); }
 
-private:
-  std::vector<T> data;
+  private:
+    std::vector<T> data;
 };
 
 #endif
