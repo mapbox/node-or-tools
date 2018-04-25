@@ -109,7 +109,7 @@ struct Bytes<RouteLocks> {
         std::int32_t bytes = 0;
 
         for (const auto& lockChain : v)
-            bytes += lockChain.size() * sizeof(LockChain::value_type);
+            bytes += static_cast<std::int32_t>(lockChain.size() * sizeof(LockChain::value_type));
 
         return bytes;
     }
