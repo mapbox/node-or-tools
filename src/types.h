@@ -12,11 +12,10 @@
 
 // Newtype via phantom type scheme. Allows type system to distinguish between tagged types.
 // Note: NewType<T, struct Tag0>::Type != NewType<T, struct Tag1>::Type
-template <typename T, typename Tag>
-struct NewType {
-    struct Type : T {
-        using T::T;
-    };
+template <typename T, typename Tag> struct NewType {
+  struct Type : T {
+    using T::T;
+  };
 };
 
 using CostMatrix = NewType<Matrix<std::int32_t>, struct CostMatrixTag>::Type;
@@ -24,15 +23,15 @@ using DurationMatrix = NewType<Matrix<std::int32_t>, struct DurationMatrixTag>::
 using DemandMatrix = NewType<Matrix<std::int32_t>, struct DemandMatrixTag>::Type;
 
 struct Interval {
-    Interval() : start{0}, stop{0} {}
+  Interval() : start{0}, stop{0} {}
 
-    Interval(std::int32_t start_, std::int32_t stop_) : start{start_}, stop{stop_} {
-        if (start < 0 || stop < 0 || stop < start)
-            throw std::runtime_error{"Negative intervals not supported"};
-    }
+  Interval(std::int32_t start_, std::int32_t stop_) : start{start_}, stop{stop_} {
+    if (start < 0 || stop < 0 || stop < start)
+      throw std::runtime_error{"Negative intervals not supported"};
+  }
 
-    std::int32_t start;
-    std::int32_t stop;
+  std::int32_t start;
+  std::int32_t stop;
 };
 
 using TimeWindows = NewType<Vector<Interval>, struct TimeWindowsTag>::Type;
@@ -72,64 +71,47 @@ using Deliveries = NewType<Vector<NodeIndex>, struct DeliveriesTag>::Type;
 
 // Bytes in our type used for internal caching
 
-template <typename T>
-struct Bytes;
+template <typename T> struct Bytes;
 
-template <>
-struct Bytes<CostMatrix> {
-    std::int32_t operator()(const CostMatrix& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(CostMatrix::Value));
-    }
+template <> struct Bytes<CostMatrix> {
+  std::int32_t operator()(const CostMatrix& v) const { return v.size() * static_cast<std::int32_t>(sizeof(CostMatrix::Value)); }
 };
 
-template <>
-struct Bytes<DurationMatrix> {
-    std::int32_t operator()(const DurationMatrix& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(DurationMatrix::Value));
-    }
+template <> struct Bytes<DurationMatrix> {
+  std::int32_t operator()(const DurationMatrix& v) const {
+    return v.size() * static_cast<std::int32_t>(sizeof(DurationMatrix::Value));
+  }
 };
 
-template <>
-struct Bytes<DemandMatrix> {
-    std::int32_t operator()(const DemandMatrix& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(DemandMatrix::Value));
-    }
+template <> struct Bytes<DemandMatrix> {
+  std::int32_t operator()(const DemandMatrix& v) const {
+    return v.size() * static_cast<std::int32_t>(sizeof(DemandMatrix::Value));
+  }
 };
 
-template <>
-struct Bytes<TimeWindows> {
-    std::int32_t operator()(const TimeWindows& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(TimeWindows::Value));
-    }
+template <> struct Bytes<TimeWindows> {
+  std::int32_t operator()(const TimeWindows& v) const { return v.size() * static_cast<std::int32_t>(sizeof(TimeWindows::Value)); }
 };
 
-template <>
-struct Bytes<RouteLocks> {
-    std::int32_t operator()(const RouteLocks& v) const {
-        std::int32_t bytes = 0;
+template <> struct Bytes<RouteLocks> {
+  std::int32_t operator()(const RouteLocks& v) const {
+    std::int32_t bytes = 0;
 
-        for (const auto& lockChain : v)
-            bytes += static_cast<std::int32_t>(lockChain.size() * sizeof(LockChain::value_type));
+    for (const auto& lockChain : v)
+      bytes += static_cast<std::int32_t>(lockChain.size() * sizeof(LockChain::value_type));
 
-        return bytes;
-    }
+    return bytes;
+  }
 };
 
-template <>
-struct Bytes<Pickups> {
-    std::int32_t operator()(const Pickups& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(Pickups::Value));
-    }
+template <> struct Bytes<Pickups> {
+  std::int32_t operator()(const Pickups& v) const { return v.size() * static_cast<std::int32_t>(sizeof(Pickups::Value)); }
 };
 
-template <>
-struct Bytes<Deliveries> {
-    std::int32_t operator()(const Deliveries& v) const {
-        return v.size() * static_cast<std::int32_t>(sizeof(Deliveries::Value));
-    }
+template <> struct Bytes<Deliveries> {
+  std::int32_t operator()(const Deliveries& v) const { return v.size() * static_cast<std::int32_t>(sizeof(Deliveries::Value)); }
 };
 
-template <typename T>
-std::int32_t getBytes(const T& v) { return Bytes<T>{}(v); }
+template <typename T> std::int32_t getBytes(const T& v) { return Bytes<T>{}(v); }
 
 #endif

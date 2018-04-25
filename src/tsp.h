@@ -9,21 +9,21 @@
 #include <memory>
 
 class TSP : public Nan::ObjectWrap {
-  public:
-    static NAN_MODULE_INIT(Init);
+public:
+  static NAN_MODULE_INIT(Init);
 
-  private:
-    static NAN_METHOD(New);
+private:
+  static NAN_METHOD(New);
 
-    static NAN_METHOD(Solve);
+  static NAN_METHOD(Solve);
 
-    static Nan::Persistent<v8::Function>& constructor();
+  static Nan::Persistent<v8::Function>& constructor();
 
-    // Wrapped Object
+  // Wrapped Object
 
-    TSP(CostMatrix costs);
+  TSP(CostMatrix costs);
 
-    std::shared_ptr<const CostMatrix> costs;
+  std::shared_ptr<const CostMatrix> costs;
 };
 
 #endif

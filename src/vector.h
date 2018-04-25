@@ -4,21 +4,20 @@
 #include <cstdint>
 #include <vector>
 
-template <typename T>
-class Vector {
-  public:
-    using Value = T;
+template <typename T> class Vector {
+public:
+  using Value = T;
 
-    Vector() = default;
-    Vector(std::int32_t n) { data.resize(static_cast<std::size_t>(n)); }
+  Vector() = default;
+  Vector(std::int32_t n) { data.resize(static_cast<std::size_t>(n)); }
 
-    std::int32_t size() const { return static_cast<std::int32_t>(data.size()); }
+  std::int32_t size() const { return static_cast<std::int32_t>(data.size()); }
 
-    T& at(std::int32_t x) { return data.at(static_cast<std::size_t>(x)); }
-    const T& at(std::int32_t x) const { return data.at(static_cast<std::size_t>(x)); }
+  T& at(std::int32_t x) { return data.at(static_cast<std::size_t>(x)); }
+  const T& at(std::int32_t x) const { return data.at(static_cast<std::size_t>(x)); }
 
-  private:
-    std::vector<T> data;
+private:
+  std::vector<T> data;
 };
 
 #endif

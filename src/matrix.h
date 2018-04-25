@@ -4,30 +4,29 @@
 #include <cstdint>
 #include <vector>
 
-template <typename T>
-class Matrix {
-    static_assert(std::is_arithmetic<T>::value, "Matrix<T> requires T to be integral or floating point");
+template <typename T> class Matrix {
+  static_assert(std::is_arithmetic<T>::value, "Matrix<T> requires T to be integral or floating point");
 
-  public:
-    using Value = T;
+public:
+  using Value = T;
 
-    Matrix() = default;
-    Matrix(std::int32_t n_) : n{n_} {
-        if (n < 0)
-            throw std::runtime_error{"Negative dimension"};
+  Matrix() = default;
+  Matrix(std::int32_t n_) : n{n_} {
+    if (n < 0)
+      throw std::runtime_error{"Negative dimension"};
 
-        data.resize(static_cast<std::size_t>(n * n));
-    }
+    data.resize(static_cast<std::size_t>(n * n));
+  }
 
-    std::int32_t dim() const { return n; }
-    std::int32_t size() const { return dim() * dim(); }
+  std::int32_t dim() const { return n; }
+  std::int32_t size() const { return dim() * dim(); }
 
-    T& at(std::int32_t x, std::int32_t y) { return data.at(static_cast<std::size_t>(y * n + x)); }
-    const T& at(std::int32_t x, std::int32_t y) const { return data.at(static_cast<std::size_t>(y * n + x)); }
+  T& at(std::int32_t x, std::int32_t y) { return data.at(static_cast<std::size_t>(y * n + x)); }
+  const T& at(std::int32_t x, std::int32_t y) const { return data.at(static_cast<std::size_t>(y * n + x)); }
 
-  private:
-    std::int32_t n;
-    std::vector<T> data;
+private:
+  std::int32_t n;
+  std::vector<T> data;
 };
 
 #endif
