@@ -2,14 +2,15 @@
   'target_defaults': {
     'default_configuration': 'Release',
     'cflags_cc' : [
-      '-std=c++14',
-      '-Wall',
-      '-Wextra',
-      '-ffunction-sections -fdata-sections',
-      '-D_GLIBCXX_USE_CXX11_ABI=0',
-    ],
-    'ldflags': [
-      '-Wl,--gc-sections'
+      '-std=c++11',
+      # The assumption is that projects based on node-cpp-skel will also
+      # depend on mason packages. Currently (this will change in future mason versions)
+      # mason packages default to being built/linked with the CXX11_ABI=0.
+      # So we need to link this way too. This allows source
+      # compiling your module on any ubuntu version, even the latest
+      # where the CXX11_ABI default has flipped to 1
+      # More details at https://github.com/mapbox/mason/issues/319
+      '-D_GLIBCXX_USE_CXX11_ABI=0'
     ],
     'cflags_cc!': ['-std=gnu++0x','-fno-rtti', '-fno-exceptions'],
     'configurations': {
@@ -36,12 +37,20 @@
         'defines': [
           'NDEBUG'
         ],
+        'cflags': [
+         '-flto'
+        ],
+        'ldflags': [
+         '-flto',
+         '-fuse-ld=<(module_root_dir)/mason_packages/.link/bin/ld'
+        ],
         'xcode_settings': {
           'OTHER_CPLUSPLUSFLAGS!': [
             '-Os',
-            '-std=gnu++0x'
             '-O2'
           ],
+          'OTHER_LDFLAGS':[ '-flto' ],
+          'OTHER_CPLUSPLUSFLAGS': [ '-flto' ],
           'GCC_OPTIMIZATION_LEVEL': '3',
           'GCC_GENERATE_DEBUGGING_SYMBOLS': 'NO',
           'DEAD_CODE_STRIPPING': 'YES',

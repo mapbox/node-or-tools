@@ -19,7 +19,7 @@ inline auto makeMatrixFrom2dArray(std::int32_t n, v8::Local<v8::Array> array) {
     Matrix matrix(n);
 
     for (std::int32_t fromIdx = 0; fromIdx < n; ++fromIdx) {
-        auto inner = Nan::Get(array, fromIdx).ToLocalChecked();
+        auto inner = Nan::Get(array, static_cast<std::uint32_t>(fromIdx)).ToLocalChecked();
 
         if (!inner->IsArray())
             throw std::runtime_error{"Expected Array of Arrays"};
@@ -30,7 +30,7 @@ inline auto makeMatrixFrom2dArray(std::int32_t n, v8::Local<v8::Array> array) {
             throw std::runtime_error{"Inner Array dimension do not match size"};
 
         for (std::int32_t toIdx = 0; toIdx < n; ++toIdx) {
-            auto num = Nan::Get(innerArray, toIdx).ToLocalChecked();
+            auto num = Nan::Get(innerArray, static_cast<std::uint32_t>(toIdx)).ToLocalChecked();
 
             if (!num->IsNumber())
                 throw std::runtime_error{"Expected 2d Array of Numbers"};

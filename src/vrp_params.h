@@ -46,7 +46,7 @@ inline auto makeTimeWindowsFrom2dArray(std::int32_t n, v8::Local<v8::Array> arra
     TimeWindows timeWindows(n);
 
     for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
-        auto inner = Nan::Get(array, atIdx).ToLocalChecked();
+        auto inner = Nan::Get(array, static_cast<std::uint32_t>(atIdx)).ToLocalChecked();
 
         if (!inner->IsArray())
             throw std::runtime_error{"Expected Array of Arrays"};
@@ -83,10 +83,10 @@ inline auto makeRouteLocksFrom2dArray(std::int32_t n, v8::Local<v8::Array> array
 
     // Note: use (n) for construction because RouteLocks is a weak alias to a std::vector.
     // Using vec(n) creates a vector of n items, using vec{n} creates a vector with a single element n.
-    RouteLocks routeLocks(n);
+    RouteLocks routeLocks(static_cast<std::size_t>(n));
 
     for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
-        auto inner = Nan::Get(array, atIdx).ToLocalChecked();
+        auto inner = Nan::Get(array, static_cast<std::uint32_t>(atIdx)).ToLocalChecked();
 
         if (!inner->IsArray())
             throw std::runtime_error{"Expected Array of Arrays"};
@@ -96,15 +96,15 @@ inline auto makeRouteLocksFrom2dArray(std::int32_t n, v8::Local<v8::Array> array
         LockChain lockChain(innerArray->Length());
 
         for (std::int32_t lockIdx = 0; lockIdx < static_cast<std::int32_t>(innerArray->Length()); ++lockIdx) {
-            auto node = Nan::Get(innerArray, lockIdx).ToLocalChecked();
+            auto node = Nan::Get(innerArray, static_cast<std::uint32_t>(lockIdx)).ToLocalChecked();
 
             if (!node->IsNumber())
                 throw std::runtime_error{"Expected lock node of type Number"};
 
-            lockChain.at(lockIdx) = Nan::To<std::int32_t>(node).FromJust();
+            lockChain.at(static_cast<std::size_t>(lockIdx)) = Nan::To<std::int32_t>(node).FromJust();
         }
 
-        routeLocks.at(atIdx) = std::move(lockChain);
+        routeLocks.at(static_cast<std::size_t>(atIdx)) = std::move(lockChain);
     }
 
     return routeLocks;

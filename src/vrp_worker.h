@@ -64,7 +64,7 @@ struct VRPWorker final : Nan::AsyncWorker {
         if (!costsOk || !durationsOk || !timeWindowsOk || !demandsOk)
             throw std::runtime_error{"Expected costs, durations, timeWindow and demand sizes to match numNodes"};
 
-        const auto routeLocksOk = (std::int32_t)routeLocks.size() == numVehicles;
+        const auto routeLocksOk = static_cast<std::int32_t>(routeLocks.size()) == numVehicles;
 
         if (!routeLocksOk)
             throw std::runtime_error{"Expected routeLocks size to match numVehicles"};
@@ -204,18 +204,18 @@ struct VRPWorker final : Nan::AsyncWorker {
             auto jsNodeTimes = Nan::New<v8::Array>(times.size());
 
             for (std::size_t j = 0; j < route.size(); ++j) {
-                Nan::Set(jsNodes, j, Nan::New<v8::Number>(route[j].value()));
+                Nan::Set(jsNodes, static_cast<std::uint32_t>(j), Nan::New<v8::Number>(route[j].value()));
 
                 auto jsInterval = Nan::New<v8::Array>(2);
 
                 Nan::Set(jsInterval, 0, Nan::New<v8::Number>(times[j].start));
                 Nan::Set(jsInterval, 1, Nan::New<v8::Number>(times[j].stop));
 
-                Nan::Set(jsNodeTimes, j, jsInterval);
+                Nan::Set(jsNodeTimes, static_cast<std::uint32_t>(j), jsInterval);
             }
 
-            Nan::Set(jsRoutes, i, jsNodes);
-            Nan::Set(jsTimes, i, jsNodeTimes);
+            Nan::Set(jsRoutes, static_cast<std::uint32_t>(i), jsNodes);
+            Nan::Set(jsTimes, static_cast<std::uint32_t>(i), jsNodeTimes);
         }
 
         Nan::Set(jsSolution, Nan::New("cost").ToLocalChecked(), jsCost);

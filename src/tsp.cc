@@ -29,7 +29,7 @@ try {
     // Handle `new T()` as well as `T()`
     if (!info.IsConstructCall()) {
         auto init = Nan::New(constructor());
-        info.GetReturnValue().Set(init->NewInstance());
+        info.GetReturnValue().Set(Nan::NewInstance(init).ToLocalChecked());
         return;
     }
 

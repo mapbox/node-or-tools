@@ -43,7 +43,7 @@ struct TSPWorker final : Nan::AsyncWorker {
         auto jsRoute = Nan::New<v8::Array>(route.size());
 
         for (std::size_t j = 0; j < route.size(); ++j)
-            (void)Nan::Set(jsRoute, j, Nan::New<v8::Number>(route[j].value()));
+            (void)Nan::Set(jsRoute, static_cast<std::uint32_t>(j), Nan::New<v8::Number>(route[j].value()));
 
         const auto argc = 2u;
         v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoute};

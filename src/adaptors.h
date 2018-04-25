@@ -33,7 +33,7 @@ inline auto makeMatrixFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
 
     Nan::Callback callback{fn};
 
-    Matrix matrix{n};
+    Matrix matrix{static_cast<std::size_t>(n)};
 
     for (std::int32_t fromIdx = 0; fromIdx < n; ++fromIdx) {
         for (std::int32_t toIdx = 0; toIdx < n; ++toIdx) {
@@ -97,7 +97,7 @@ inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> f
 
     // Note: use (n) for construction because RouteLocks is a weak alias to a std::vector.
     // Using vec(n) creates a vector of n items, using vec{n} creates a vector with a single element n.
-    RouteLocks routeLocks(n);
+    RouteLocks routeLocks(static_cast<std::size_t>(n));
 
     for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
         const auto argc = 1u;
@@ -112,7 +112,7 @@ inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> f
 
         LockChain lockChain(locksArray->Length());
 
-        for (std::int32_t lockIdx = 0; lockIdx < (std::int32_t)locksArray->Length(); ++lockIdx) {
+        for (std::uint32_t lockIdx = 0; lockIdx < locksArray->Length(); ++lockIdx) {
             auto node = Nan::Get(locksArray, lockIdx).ToLocalChecked();
 
             if (!node->IsNumber())
@@ -121,7 +121,7 @@ inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> f
             lockChain.at(lockIdx) = Nan::To<std::int32_t>(node).FromJust();
         }
 
-        routeLocks.at(atIdx) = std::move(lockChain);
+        routeLocks.at(static_cast<std::size_t>(atIdx)) = std::move(lockChain);
     }
 
     return routeLocks;
@@ -130,17 +130,17 @@ inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> f
 // Caches user provided Js Array into a Vector
 template <typename Vector>
 inline auto makeVectorFromJsNumberArray(v8::Local<v8::Array> array) {
-    const std::int32_t len = array->Length();
+    const std::uint32_t len = array->Length();
 
-    Vector vec(len);
+    Vector vec(static_cast<std::int32_t>(len));
 
-    for (std::int32_t atIdx = 0; atIdx < len; ++atIdx) {
+    for (std::uint32_t atIdx = 0; atIdx < len; ++atIdx) {
         auto num = Nan::Get(array, atIdx).ToLocalChecked();
 
         if (!num->IsNumber())
             throw std::runtime_error{"Expected array element of types Number"};
 
-        vec.at(atIdx) = Nan::To<std::int32_t>(num).FromJust();
+        vec.at(static_cast<std::int32_t>(atIdx)) = Nan::To<std::int32_t>(num).FromJust();
     }
 
     return vec;

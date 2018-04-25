@@ -77,22 +77,30 @@ struct Bytes;
 
 template <>
 struct Bytes<CostMatrix> {
-    std::int32_t operator()(const CostMatrix& v) const { return v.size() * sizeof(CostMatrix::Value); }
+    std::int32_t operator()(const CostMatrix& v) const { 
+        return v.size() * static_cast<std::int32_t>(sizeof(CostMatrix::Value)); 
+    }
 };
 
 template <>
 struct Bytes<DurationMatrix> {
-    std::int32_t operator()(const DurationMatrix& v) const { return v.size() * sizeof(DurationMatrix::Value); }
+    std::int32_t operator()(const DurationMatrix& v) const {
+        return v.size() * static_cast<std::int32_t>(sizeof(DurationMatrix::Value));
+    }
 };
 
 template <>
 struct Bytes<DemandMatrix> {
-    std::int32_t operator()(const DemandMatrix& v) const { return v.size() * sizeof(DemandMatrix::Value); }
+    std::int32_t operator()(const DemandMatrix& v) const { 
+        return v.size() * static_cast<std::int32_t>(sizeof(DemandMatrix::Value));
+    }
 };
 
 template <>
 struct Bytes<TimeWindows> {
-    std::int32_t operator()(const TimeWindows& v) const { return v.size() * sizeof(TimeWindows::Value); }
+    std::int32_t operator()(const TimeWindows& v) const { 
+        return v.size() * static_cast<std::int32_t>(sizeof(TimeWindows::Value));
+    }
 };
 
 template <>
@@ -109,12 +117,16 @@ struct Bytes<RouteLocks> {
 
 template <>
 struct Bytes<Pickups> {
-    std::int32_t operator()(const Pickups& v) const { return v.size() * sizeof(Pickups::Value); }
+    std::int32_t operator()(const Pickups& v) const { 
+        return v.size() * static_cast<std::int32_t>(sizeof(Pickups::Value)); 
+    }
 };
 
 template <>
 struct Bytes<Deliveries> {
-    std::int32_t operator()(const Deliveries& v) const { return v.size() * sizeof(Deliveries::Value); }
+    std::int32_t operator()(const Deliveries& v) const { 
+        return v.size() * static_cast<std::int32_t>(sizeof(Deliveries::Value));
+    }
 };
 
 template <typename T>
