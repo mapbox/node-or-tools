@@ -48,7 +48,7 @@ struct TSPWorker final : Nan::AsyncWorker {
         const auto argc = 2u;
         v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsRoute};
 
-        callback->Call(argc, argv);
+        callback->Call(argc, argv, async_resource);
     }
 
     std::shared_ptr<const CostMatrix> costs; // inc ref count to keep alive for async cb

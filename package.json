@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "mason-js-sdk": "~0.1.4",
-    "nan": "^2.6",
+    "nan": "^2.10",
     "node-pre-gyp": "^0.6.34"
   },
   "devDependencies": {

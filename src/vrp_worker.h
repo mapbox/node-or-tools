@@ -18,7 +18,7 @@ struct RoutingSolution {
     std::vector<std::vector<Interval>> times;
 };
 
-struct VRPWorker final : Nan::AsyncWorker {
+struct VRPWorker final : public Nan::AsyncWorker {
     using Base = Nan::AsyncWorker;
 
     VRPWorker(std::shared_ptr<const CostMatrix> costs_,         //
@@ -225,7 +225,7 @@ struct VRPWorker final : Nan::AsyncWorker {
         const auto argc = 2u;
         v8::Local<v8::Value> argv[argc] = {Nan::Null(), jsSolution};
 
-        callback->Call(argc, argv);
+        callback->Call(argc, argv, async_resource);
     }
 
     // Shared ownership: keeps objects alive until the last callback is done.

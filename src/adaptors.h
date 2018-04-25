@@ -25,6 +25,8 @@ auto makeCallback(const Adaptor& adaptor) {
     return NewPermanentCallback(&adaptor, &Adaptor::operator());
 }
 
+/*
+ Unused code, keeping it around for posterity
 // Caches user provided Function(s, t) -> Number into Matrix
 template <typename Matrix>
 inline auto makeMatrixFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
@@ -40,7 +42,7 @@ inline auto makeMatrixFromFunction(std::int32_t n, v8::Local<v8::Function> fn) {
             const auto argc = 2u;
             v8::Local<v8::Value> argv[argc] = {Nan::New(fromIdx), Nan::New(toIdx)};
 
-            auto cost = callback.Call(argc, argv);
+            auto cost = callback.Call(argc, argv, async_resource);
 
             if (!cost->IsNumber())
                 throw std::runtime_error{"Expected function signature: Number fn(Number from, Number to)"};
@@ -126,6 +128,7 @@ inline auto makeRouteLocksFromFunction(std::int32_t n, v8::Local<v8::Function> f
 
     return routeLocks;
 }
+*/
 
 // Caches user provided Js Array into a Vector
 template <typename Vector>
