@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# See https://github.com/mapbox/node-cpp-skel
-
 set -eu
 set -o pipefail
 
