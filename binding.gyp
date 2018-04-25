@@ -99,6 +99,7 @@
         }]
       ],
       'cflags_cc': [
+          '-std=c++14',
           '<@(system_includes)',
           '<@(compiler_checks)'
       ],
