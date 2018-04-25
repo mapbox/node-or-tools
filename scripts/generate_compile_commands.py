@@ -19,7 +19,7 @@ import re
 
 # These work for node-cpp-skel to detect the files being compiled
 # They may need to be modified if you adapt this to another tool
-matcher = re.compile('^(.*) (.+cpp)\n')
+matcher = re.compile('^(.*) (.+cpp|.+cc)\n')
 build_dir = os.path.join(os.getcwd(),"build")
 TOKEN_DENOTING_COMPILED_FILE='NODE_GYP_MODULE_NAME'
 
