@@ -25,7 +25,7 @@ struct VRPWorker final : public Nan::AsyncWorker {
             std::shared_ptr<const DurationMatrix> durations_, //
             std::shared_ptr<const TimeWindows> timeWindows_,  //
             std::shared_ptr<const DemandMatrix> demands_,     //
-            Nan::Callback* callback,                          //
+            Nan::Callback* callback_,                         //
             const RoutingModelParameters& modelParams_,       //
             const RoutingSearchParameters& searchParams_,     //
             std::int32_t numNodes_,                           //
@@ -36,7 +36,7 @@ struct VRPWorker final : public Nan::AsyncWorker {
             RouteLocks routeLocks_,                           //
             Pickups pickups_,                                 //
             Deliveries deliveries_)                           //
-      : Base(callback),
+      : Base(callback_),
         // Cached vectors and matrices
         costs{std::move(costs_)}, durations{std::move(durations_)}, timeWindows{std::move(timeWindows_)}, demands{std::move(
                                                                                                               demands_)},
@@ -45,8 +45,8 @@ struct VRPWorker final : public Nan::AsyncWorker {
         vehicleCapacity{vehicleCapacity_}, routeLocks{std::move(routeLocks_)}, pickups{std::move(pickups_)}, deliveries{std::move(
                                                                                                                  deliveries_)},
         // Setup model
-        model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_}, modelParams{modelParams_}, searchParams{
-                                                                                                            searchParams_} {
+        model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_}, modelParams{modelParams_},
+        searchParams{searchParams_}, solution{} {
 
     const auto costsOk = costs->dim() == numNodes;
     const auto durationsOk = durations->dim() == numNodes;

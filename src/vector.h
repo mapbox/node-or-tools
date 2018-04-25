@@ -8,8 +8,8 @@ template <typename T> class Vector {
 public:
   using Value = T;
 
-  Vector() = default;
-  Vector(std::int32_t n) { data.resize(static_cast<std::size_t>(n)); }
+  Vector() : data{} {}
+  Vector(std::int32_t n) : data(static_cast<std::size_t>(n)) {}
 
   std::int32_t size() const { return static_cast<std::int32_t>(data.size()); }
 

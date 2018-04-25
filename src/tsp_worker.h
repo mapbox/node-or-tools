@@ -13,11 +13,11 @@
 struct TSPWorker final : Nan::AsyncWorker {
   using Base = Nan::AsyncWorker;
 
-  TSPWorker(std::shared_ptr<const CostMatrix> costs_, Nan::Callback* callback, const RoutingModelParameters& modelParams_,
+  TSPWorker(std::shared_ptr<const CostMatrix> costs_, Nan::Callback* callback_, const RoutingModelParameters& modelParams_,
             const RoutingSearchParameters& searchParams_, std::int32_t numNodes, std::int32_t numVehicles,
             std::int32_t vehicleDepot)
-      : Base(callback), costs{std::move(costs_)}, model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
-        modelParams{modelParams_}, searchParams{searchParams_} {}
+      : Base(callback_), costs{std::move(costs_)}, model{numNodes, numVehicles, NodeIndex{vehicleDepot}, modelParams_},
+        modelParams{modelParams_}, searchParams{searchParams_}, routes{} {}
 
   void Execute() override {
     auto costAdaptor = makeBinaryAdaptor(*costs);

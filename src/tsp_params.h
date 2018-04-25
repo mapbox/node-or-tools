@@ -25,7 +25,7 @@ struct TSPSearchParams {
 
 // Impl.
 
-TSPSolverParams::TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+TSPSolverParams::TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info) : numNodes{0}, costs{} {
   if (info.Length() != 1 || !info[0]->IsObject())
     throw std::runtime_error{"Single object argument expected: SolverOptions"};
 
@@ -46,7 +46,8 @@ TSPSolverParams::TSPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   costs = makeMatrixFrom2dArray<CostMatrix>(numNodes, costMatrix);
 }
 
-TSPSearchParams::TSPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+TSPSearchParams::TSPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info)
+    : computeTimeLimit(0), depotNode(0), callback{} {
   if (info.Length() != 2 || !info[0]->IsObject() || !info[1]->IsFunction())
     throw std::runtime_error{"Two arguments expected: SearchOptions (Object) and callback (Function)"};
 

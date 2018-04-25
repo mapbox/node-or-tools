@@ -10,8 +10,8 @@ template <typename T> class Matrix {
 public:
   using Value = T;
 
-  Matrix() = default;
-  Matrix(std::int32_t n_) : n{n_} {
+  Matrix() : n{0}, data{} {}
+  Matrix(std::int32_t n_) : n{n_}, data{} {
     if (n < 0)
       throw std::runtime_error{"Negative dimension"};
 

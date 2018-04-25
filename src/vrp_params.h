@@ -112,7 +112,9 @@ inline auto makeRouteLocksFrom2dArray(std::int32_t n, v8::Local<v8::Array> array
 
 // Impl.
 
-VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& info)
+    : numNodes{0}, costs{}, durations{}, timeWindows{}, demands{} {
+
   if (info.Length() != 1 || !info[0]->IsObject())
     throw std::runtime_error{"Single object argument expected: SolverOptions"};
 
@@ -151,7 +153,10 @@ VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   demands = makeMatrixFrom2dArray<DemandMatrix>(numNodes, demandMatrix);
 }
 
-VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& info)
+    : computeTimeLimit{0}, numVehicles{0}, depotNode{0}, timeHorizon{0}, vehicleCapacity{0}, routeLocks{}, pickups{},
+      deliveries{}, callback{} {
+
   if (info.Length() != 2 || !info[0]->IsObject() || !info[1]->IsFunction())
     throw std::runtime_error{"Two arguments expected: SearchOptions (Object) and callback (Function)"};
 
