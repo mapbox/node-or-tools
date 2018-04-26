@@ -33,7 +33,7 @@ def generate():
                 "command": line.strip(),
                 "file": os.path.normpath(os.path.join(build_dir,match.group(2)))
             })
-    print json.dumps(compile_commands,indent=4)
+    print(json.dumps(compile_commands,indent=4))
 
 if __name__ == '__main__':
     generate()
