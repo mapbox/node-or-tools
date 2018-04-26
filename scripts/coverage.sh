@@ -8,8 +8,8 @@ set -o pipefail
 # https://www.bignerdranch.com/blog/weve-got-you-covered/
 
 make clean
-export CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping -coverage"
-export LDFLAGS="-fprofile-instr-generate -coverage"
+export CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping"
+export LDFLAGS="-fprofile-instr-generate"
 make debug
 rm -f *profraw
 rm -f *gcov
