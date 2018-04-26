@@ -19,7 +19,7 @@ NAN_MODULE_INIT(TSP::Init) {
   SetPrototypeMethod(fnTp, "Solve", Solve);
 
   const auto fn = Nan::GetFunction(fnTp).ToLocalChecked();
-  constructor().Reset(fn);
+  constructor.Reset(fn);
 
   Nan::Set(target, whoami, fn);
 }
@@ -28,8 +28,19 @@ NAN_METHOD(TSP::New)
 try {
   // Handle `new T()` as well as `T()`
   if (!info.IsConstructCall()) {
-    auto init = Nan::New(constructor());
-    info.GetReturnValue().Set(Nan::NewInstance(init).ToLocalChecked());
+    auto init = Nan::New(constructor);
+    const int argc = info.Length();
+    std::vector<v8::Local<v8::Value>> argv;
+    for (int i=0; i<argc; i++) {
+      argv.push_back(info[i]);
+    }
+    Nan::TryCatch try_catch;
+    auto newinstance = Nan::NewInstance(init, argc, argv.data());
+    if (newinstance.IsEmpty()) {
+      try_catch.ReThrow();
+      return;
+    }
+    info.GetReturnValue().Set(newinstance.ToLocalChecked());
     return;
   }
 
@@ -81,7 +92,4 @@ try {
   return Nan::ThrowError(e.what());
 }
 
-Nan::Persistent<v8::Function>& TSP::constructor() {
-  static Nan::Persistent<v8::Function> init;
-  return init;
-}
+Nan::Persistent<v8::Function> TSP::constructor;

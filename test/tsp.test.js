@@ -56,3 +56,41 @@ test('Test TSP', function(assert) {
   });
 
 });
+
+test('Should throw on empty constructor params', (t) => {
+
+  try {
+    var TSP = ortools.TSP();
+    t.fail('Should never get here');
+  }
+  catch (err) {
+    t.ok(err, 'Should throw an error if no args');
+  }
+
+  try {
+    var TSP = new ortools.TSP();
+    t.fail('Should never get here');
+  }
+  catch (err) {
+    t.ok(err, 'Should throw an error if no args');
+  }
+  t.end();
+  
+});
+
+test('Alternative TSP object constructor', function(t) {
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix
+    };
+
+    var TSP = ortools.TSP(solverOpts);
+    t.ok('Should construct without `new`');
+  }
+  catch (err) {
+    console.log(err);
+    t.fail(err, 'Should not fail');
+  }
+  t.end();
+});

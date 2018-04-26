@@ -173,3 +173,64 @@ test('Test VRP', function(assert) {
     assert.end();
   });
 });
+
+test('Should throw on empty constructor params', (t) => {
+
+  try {
+    var VRP1 = ortools.VRP();
+    t.fail('Should never get here');
+  }
+  catch (err) {
+    t.ok(err, 'Should throw an error if no args');
+  }
+
+  try {
+    var VRP1 = new ortools.VRP();
+    t.fail('Should never get here');
+  }
+  catch (err) {
+    t.ok(err, 'Should throw an error if no args');
+  }
+  t.end();
+  
+});
+
+test('Alternative constructor call', (t) => {
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = ortools.VRP(solverOpts);
+    t.ok('Should be constructable without new');
+  }
+  catch (err) {
+    t.fail(err);
+  }
+  t.end();
+});
+
+test('Invalid parameter handling', (t) => {
+
+  try {
+      reversedTimeWindows = timeWindows.map(n => n.reverse());
+      var solverOpts = {
+        numNodes: locations.length,
+        costs: costMatrix,
+        durations: durationMatrix,
+        timeWindows: timeWindows,
+        demands: demandMatrix
+      };
+
+      var VRP = new ortools.VRP(solverOpts);
+      t.fail('Should not get here');
+    } catch (err) {
+      t.ok(err, 'Exception should be thrown for negative time window intervals');
+      t.end();
+    }
+
+});

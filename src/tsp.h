@@ -17,7 +17,7 @@ private:
 
   static NAN_METHOD(Solve);
 
-  static Nan::Persistent<v8::Function>& constructor();
+  static Nan::Persistent<v8::Function> constructor;
 
   // Wrapped Object
 
