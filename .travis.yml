@@ -40,9 +40,11 @@ matrix:
     ## ** Builds that are published **
 
     # linux cfi build node v6/release
-    - os: linux
-      env: BUILDTYPE=release TOOLSET=cfi CXXFLAGS="-fsanitize=cfi -fvisibility=hidden" LDFLAGS="-fsanitize=cfi"
-      node_js: 6
+    # DISABLED - generated binaries crash immediately, something is missing from this recipe to enable
+    #            good error messages
+    #- os: linux
+    #  env: BUILDTYPE=release TOOLSET=cfi CXXFLAGS="-fsanitize=cfi -fvisibility=hidden" LDFLAGS="-fsanitize=cfi"
+    #  node_js: 6
     # linux publishable node v6/release
     - os: linux
       env: BUILDTYPE=release
