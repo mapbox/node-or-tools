@@ -15,7 +15,10 @@ rm -f *profraw
 rm -f *gcov
 rm -f *profdata
 LLVM_PROFILE_FILE="code-%p.profraw" npm test
-ls -l
+
+# Debug - find where travis puts the profraw files
+find . -maxdepth 3 | grep -v .git | grep -v node_modules
+
 CXX_MODULE=$(./node_modules/.bin/node-pre-gyp reveal module --silent)
 export PATH=$(pwd)/mason_packages/.link/bin/:${PATH}
 llvm-profdata merge -output=code.profdata code-*.profraw
