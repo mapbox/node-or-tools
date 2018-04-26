@@ -15,9 +15,9 @@
       # It's a variable to make easy to pass to
       # cflags (linux) and xcode (mac)
       'system_includes': [
-        "-isystem <(module_root_dir)/<!(node -e \"require('nan')\")",
-        "-isystem <(module_root_dir)/mason_packages/.link/include/",
-        "-isystem <(module_root_dir)/mason_packages/.link/include/or-tools"
+        '-isystem <(module_root_dir)/<!(node -e \"require('nan')\")',
+        '-isystem <(module_root_dir)/mason_packages/.link/include/',
+        '-isystem <(module_root_dir)/mason_packages/.link/include/or-tools'
       ],
       # Flags we pass to the compiler to ensure the compiler
       # warns us about potentially buggy or dangerous code
