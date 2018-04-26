@@ -163,3 +163,15 @@ matrix:
       before_script:
       # Overrides `script` to disable publishing
       script:
+    # Coverage build
+    - os: linux
+      env: COVERAGE
+      node_js: 6
+      # Overrides `script` to publish coverage data to codecov
+      before_script:
+        - make coverage
+        - curl -S -f https://codecov.io/bash -o codecov
+        - chmod +x codecov
+        - ./codecov -x "llvm-cov gcov" -Z
+      script:
+      install:
