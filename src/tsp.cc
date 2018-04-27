@@ -31,7 +31,7 @@ try {
     auto init = Nan::New(constructor);
     const int argc = info.Length();
     std::vector<v8::Local<v8::Value>> argv;
-    for (int i=0; i<argc; i++) {
+    for (int i = 0; i < argc; i++) {
       argv.push_back(info[i]);
     }
     Nan::TryCatch try_catch;
