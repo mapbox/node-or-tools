@@ -25,7 +25,7 @@ template <typename Matrix> inline auto makeMatrixFrom2dArray(std::int32_t n, v8:
 
     auto innerArray = inner.As<v8::Array>();
 
-    if (static_cast<std::int32_t>(array->Length()) != n)
+    if (static_cast<std::int32_t>(innerArray->Length()) != n)
       throw std::runtime_error{"Inner Array dimension do not match size"};
 
     for (std::int32_t toIdx = 0; toIdx < n; ++toIdx) {

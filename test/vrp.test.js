@@ -217,20 +217,116 @@ test('Alternative constructor call', (t) => {
 test('Invalid parameter handling', (t) => {
 
   try {
-      reversedTimeWindows = timeWindows.map(n => n.reverse());
-      var solverOpts = {
-        numNodes: locations.length,
-        costs: costMatrix,
-        durations: durationMatrix,
-        timeWindows: timeWindows,
-        demands: demandMatrix
-      };
+    reversedTimeWindows = timeWindows.map(n => n.reverse());
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
 
-      var VRP = new ortools.VRP(solverOpts);
-      t.fail('Should not get here');
-    } catch (err) {
-      t.ok(err, 'Exception should be thrown for negative time window intervals');
-      t.end();
-    }
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception should be thrown for negative time window intervals');
+  }
+
+  try {
+    nonNumericDurations = durationMatrix.map(m => m.map(n => 'a'));
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: nonNumericDurations,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception should be thrown when durations are non-numeric');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: -1,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception should be thrown when numNodes is negative');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: 1,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when numNodes doesn\'t match actual data sizes');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix.map(m => 1),
+      durations: durationMatrix,
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when parmeter isn\'t an array of arrays');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix.map(n => [1,2]),
+      timeWindows: timeWindows,
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when inner arrays sizes don\'t match outer');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows.map(n => n.map(m => 'a')),
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when inner arrays don\'t contain numbers');
+  }
+
+
+
+    t.end();
+
+
 
 });
