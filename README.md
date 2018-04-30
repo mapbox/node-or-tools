@@ -27,7 +27,7 @@ VRP.Solve(searchOpts, function (err, solution) {
 
 See [API.md](API.md) for interface documentation and [the example](./example/README.md) for a small self-contained example.
 
-We ship pre-built native binaries (for Node.js LTS 4 and 6 on Linux and macOS).
+We ship pre-built native binaries (for Node.js LTS 6 and 8 on Linux and macOS).
 You will need a compatible C++ stdlib, see below if you encounter issues.
 Building from source is supported via the `--build-from-source` flag.
 
