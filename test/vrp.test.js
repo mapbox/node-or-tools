@@ -96,6 +96,19 @@ for (var from = 0; from < locations.length; ++from) {
   }
 }
 
+var numVehicles = 10;
+var timeHorizon = dayEnds - dayStarts;
+var vehicleCapacity = 10;
+
+// Dummy lock to let vehicle 0 go to location 2 and 3 first - to test route locks
+var routeLocks = new Array(numVehicles);
+
+for (var vehicle = 0; vehicle < numVehicles; ++vehicle) {
+  if (vehicle === 0)
+    routeLocks[vehicle] = [2, 3];
+  else
+    routeLocks[vehicle] = [];
+}
 
 test('Test VRP', function(assert) {
 
@@ -108,20 +121,6 @@ test('Test VRP', function(assert) {
   };
 
   var VRP = new ortools.VRP(solverOpts);
-
-  var numVehicles = 10;
-  var timeHorizon = dayEnds - dayStarts;
-  var vehicleCapacity = 10;
-
-  // Dummy lock to let vehicle 0 go to location 2 and 3 first - to test route locks
-  var routeLocks = new Array(numVehicles);
-
-  for (var vehicle = 0; vehicle < numVehicles; ++vehicle) {
-    if (vehicle === 0)
-      routeLocks[vehicle] = [2, 3];
-    else
-      routeLocks[vehicle] = [];
-  }
 
   var searchOpts = {
     computeTimeLimit: 1000,
@@ -217,12 +216,12 @@ test('Alternative constructor call', (t) => {
 test('Invalid parameter handling', (t) => {
 
   try {
-    reversedTimeWindows = timeWindows.map(n => n.reverse());
+    reversedTimeWindows = JSON.parse(JSON.stringify(timeWindows)).map(n => n.reverse());
     var solverOpts = {
       numNodes: locations.length,
       costs: costMatrix,
       durations: durationMatrix,
-      timeWindows: timeWindows,
+      timeWindows: reversedTimeWindows,
       demands: demandMatrix
     };
 
@@ -323,10 +322,225 @@ test('Invalid parameter handling', (t) => {
     t.ok(err, 'Exception thrown when inner arrays don\'t contain numbers');
   }
 
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: [],
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when time windows array isn\'t the same size as numNodes');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows.map(n => 'a'),
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when time windows array isn\'t an array of arrays');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows.map(n => n.map(m => [])),
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when time windows inner arrays aren\'t of length 2');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows.map(n => n.map(m => ['a','b'])),
+      demands: demandMatrix
+    };
+
+    var VRP = new ortools.VRP(solverOpts);
+    t.fail('Should not get here');
+  } catch (err) {
+    t.ok(err, 'Exception thrown when time windows inner arrays arent numeric');
+  }
+
+  try {
+    var solverOpts = {
+      numNodes: locations.length,
+      costs: costMatrix,
+      durations: durationMatrix,
+      timeWindows: timeWindows.map(n => n.map(m => ['a','b'])),
+      demands: demandMatrix
+    };
+
+    for (var i in solverOpts) {
+      try {
+        var o = JSON.parse(JSON.stringify(solverOpts));
+        delete o[i];
+        var VRP = new ortools.VRP(o);
+        t.fail('Should not get here');
+      } catch(err) {
+        t.ok(err, `Exception when VRP build with missing parameter ${i}`);
+      }
+    }
+  }
+  catch (err) {
+    t.fail('Should not fail here');
+  }
 
 
-    t.end();
+  var validSolverOpts = {
+    numNodes: locations.length,
+    costs: costMatrix,
+    durations: durationMatrix,
+    timeWindows: timeWindows,
+    demands: demandMatrix
+  };
+  var validVRP = new ortools.VRP(validSolverOpts);
 
+  try {
+    validVRP.Solve();
+    t.fail('Should not get here');
+  } catch(err) {
+    t.ok(err, 'Exception when not enough parameters to Solve() call (no params)');
+  }
 
+  try {
+    validVRP.Solve({});
+    t.fail('Should not get here');
+  } catch(err) {
+    t.ok(err, 'Exception when not enough parameters to Solve() call (only one param)');
+  }
+
+  try {
+    validVRP.Solve(1,2);
+    t.fail('Should not get here');
+  } catch(err) {
+    t.ok(err, 'Exception when Solve() parameter types are not correct (wrong param types)');
+  }
+
+  try {
+
+    var searchOpts = {
+      computeTimeLimit: 1000,
+      numVehicles: numVehicles,
+      depotNode: depot,
+      timeHorizon: timeHorizon,
+      vehicleCapacity: vehicleCapacity,
+      routeLocks: routeLocks,
+      pickups: [4, 12],
+      deliveries: [9, 8]
+    };
+    // Delete each option, make sure they're all required
+    for (var i in searchOpts) {
+      try {
+        var o = JSON.parse(JSON.stringify(searchOpts));
+        delete o[i];
+        validVRP.Solve(o, () => { t.fail('Should not callback'); });
+        t.fail('Should not get here');
+      } catch(err) {
+        t.ok(err, `Exception when Solve() parameter is missing ${i}`);
+      }
+    }
+  }
+  catch (erro) {
+    t.fail('Should not fail here');
+  }
+
+  try {
+
+    var searchOpts = {
+      computeTimeLimit: 1000,
+      numVehicles: numVehicles,
+      depotNode: depot,
+      timeHorizon: timeHorizon,
+      vehicleCapacity: vehicleCapacity,
+      routeLocks: [],
+      pickups: [4, 12],
+      deliveries: [9, 8]
+    };
+    validVRP.Solve(searchOpts, () => { t.fail('Should not callback'); });
+    t.fail('Should not get here');
+  }
+  catch (err) {
+    t.ok(err, 'Exception when calling Solve() and there aren\'t enough routelocks');
+  }
+
+  try {
+
+    var searchOpts = {
+      computeTimeLimit: 1000,
+      numVehicles: numVehicles,
+      depotNode: depot,
+      timeHorizon: timeHorizon,
+      vehicleCapacity: vehicleCapacity,
+      routeLocks: routeLocks.map(n => [1000,1000]),
+      pickups: [4, 12],
+      deliveries: [9, 8]
+    };
+    validVRP.Solve(searchOpts, () => { t.fail('Should not callback'); });
+    t.fail('Should not get here');
+  }
+  catch (err) {
+    t.ok(err, 'Exception when calling Solve() and routeLocks refer to invalid nodes');
+  }
+
+  try {
+
+    var searchOpts = {
+      computeTimeLimit: 1000,
+      numVehicles: numVehicles,
+      depotNode: depot,
+      timeHorizon: timeHorizon,
+      vehicleCapacity: vehicleCapacity,
+      routeLocks: routeLocks.map(n => [depot,depot]),
+      pickups: [4, 12],
+      deliveries: [9, 8]
+    };
+    validVRP.Solve(searchOpts, () => { t.fail('Should not callback'); });
+    t.fail('Should not get here');
+  }
+  catch (err) {
+    t.ok(err, 'Exception when calling Solve() and routeLocks refer to depot');
+  }
+
+  try {
+
+    var searchOpts = {
+      computeTimeLimit: 1000,
+      numVehicles: numVehicles,
+      depotNode: depot,
+      timeHorizon: timeHorizon,
+      vehicleCapacity: vehicleCapacity,
+      routeLocks: routeLocks,
+      pickups: [4, 12],
+      deliveries: [1]
+    };
+    validVRP.Solve(searchOpts, () => { t.fail('Should not callback'); });
+    t.fail('Should not get here');
+  }
+  catch (err) {
+    t.ok(err, 'Exception when calling Solve() and pickups/deliveries don\'t match');
+  }
+
+  t.end();
 
 });
