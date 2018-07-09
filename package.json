@@ -28,9 +28,6 @@
     "aws-sdk": "^2.42.0",
     "tap": "^10.3"
   },
-  "bundledDependencies": [
-    "node-pre-gyp"
-  ],
   "binary": {
     "module_name": "node_or_tools",
     "module_path": "./lib/binding/",
