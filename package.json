@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "nan": "^2.6",
-    "node-pre-gyp": "^0.6.34"
+    "node-pre-gyp": "^0.10.1"
   },
   "devDependencies": {
     "aws-sdk": "^2.42.0",
