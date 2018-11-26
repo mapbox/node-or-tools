@@ -34,4 +34,11 @@ echo "Done installing and linking Mason deps"
 
 # We ship debug binaries with mason but for production builds we just strip debug symbols out.
 # In case you need debug symbols just comment out the following line and `npm --build-from-source`.
-find mason_packages/ -type f -name 'libortools.*' -exec strip --strip-unneeded {} \;
+
+if [ $(uname -s) == 'Darwin' ] then
+  STRIP_CMD="strip -x"
+else
+  STRIP_CMD="strip --strip-unneeded"
+fi
+
+find mason_packages/ -type f -name 'libortools.*' -exec $STRIP_CMD {} \;
