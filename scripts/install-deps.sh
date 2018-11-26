@@ -17,8 +17,10 @@ if [[ ! -d ./third_party/mason ]]; then
   mkdir -p ./third_party/mason
   echo "Downloading Mason @${MASON_RELEASE}"
   curl -sSfL https://github.com/mapbox/mason/archive/${MASON_RELEASE}.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
+  echo "Mason @${MASON_RELEASE} unpacked to ./third_party/mason"
 fi
 
+echo "Installing and linking Mason deps"
 ./third_party/mason/mason install protobuf ${PROTOBUF_RELEASE}
 ./third_party/mason/mason link protobuf ${PROTOBUF_RELEASE}
 ./third_party/mason/mason install sparsehash ${SPARSEHASH_RELEASE}
@@ -27,6 +29,7 @@ fi
 ./third_party/mason/mason link gflags ${GFLAGS_RELEASE}
 ./third_party/mason/mason install or-tools ${ORTOOLS_RELEASE}
 ./third_party/mason/mason link or-tools ${ORTOOLS_RELEASE}
+echo "Done installing and linking Mason deps"
 
 
 # We ship debug binaries with mason but for production builds we just strip debug symbols out.
