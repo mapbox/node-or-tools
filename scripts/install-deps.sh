@@ -3,9 +3,7 @@
 set -eu
 set -o pipefail
 
-# Point to or-tools upstream mason package commit until we have a
-# new mason release. See https://github.com/mapbox/mason/pull/426
-MASON_RELEASE="ca9b4cb"
+MASON_RELEASE="v0.19.0"
 SPARSEHASH_RELEASE="2.0.2"
 ORTOOLS_RELEASE="6.0"
 PROTOBUF_RELEASE="3.0.0"
@@ -39,4 +37,8 @@ if [ "$(uname -s)" == 'Darwin' ]; then
 else
   STRIP_CMD="strip --strip-unneeded"
 fi
-find mason_packages/ -type f -name 'libortools.*' -exec "$STRIP_CMD" {} \;
+pwd
+for path in $(find $(pwd)/mason_packages -type f -name 'libortools.*'); do
+   echo "stripping debug symbols from ${path}"
+   $STRIP_CMD $path
+done
