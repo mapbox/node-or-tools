@@ -11,6 +11,7 @@ addons:
     packages: [ 'libstdc++-4.9-dev', 'clang-4.0' ]
 
 install:
+  - mkdir -p ./third_party/mason
   - curl -sSfL https://github.com/mapbox/mason/archive/v0.19.0.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
   - npm install --build-from-source
 
