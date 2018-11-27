@@ -14,7 +14,7 @@ mkdir -p ./third_party
 if [[ ! -d ./third_party/mason ]]; then
   mkdir -p ./third_party/mason
   echo "Downloading Mason @${MASON_RELEASE}"
-  curl -sSfL https://github.com/mapbox/mason/archive/${MASON_RELEASE}.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
+  curl -vsSfL https://github.com/mapbox/mason/archive/${MASON_RELEASE}.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
   echo "Mason @${MASON_RELEASE} unpacked to ./third_party/mason"
 fi
 
