@@ -10,8 +10,8 @@
 // - and `null` if a route can not be found between i and j
 //
 // https://github.com/mapbox/mapbox-sdk-js/blob/master/API.md#getdistances
-// https://www.mapbox.com/api-documentation/#directions-matrix
-// https://www.mapbox.com/api-documentation/#directions
+// https://www.mapbox.com/api-documentation/navigation/#matrix
+// https://www.mapbox.com/api-documentation/navigation/#directions
 //
 // Example output solution:
 // http://bl.ocks.org/d/d0e91bc26f437aba812c554f7a5b1c2b
