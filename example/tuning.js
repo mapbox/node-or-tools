@@ -160,7 +160,7 @@ function vrpSolver(locations, computeTime, queueCallback) {
 
   var points = locations.map(function (coord) { return { coordinates: coord } });
 
-  MbxMatrixClient.postMatrix({ points: points, profile: profile})
+  MbxMatrixClient.getMatrix({ points: points, profile: profile})
     .send()
     .then(function(response) {
       var results = response.body;
@@ -273,7 +273,7 @@ for (var numLocations = 30; numLocations < 251; numLocations+=5) {
 
 q.awaitAll(function(error) {
   if (error) {
-    console.log('there seems to be a problem');
+    throw error;
   }
    console.log("All done!");
 });

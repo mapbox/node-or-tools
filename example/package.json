@@ -8,6 +8,6 @@
     "@turf/helpers": "^4.6.0",
     "async": "^2.5.0",
     "colorbrewer": "^1.0.0",
-    "mapbox": "1.0.0-beta8"
+    "d3-queue": "^3.0.7"
   }
 }
