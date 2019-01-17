@@ -40,8 +40,8 @@ const bboxes = {
         max: { lat:  42.87580094787546, lng: -87.69561767578125 }
     },
     atlanta: {
-        min: { lat: 33.49788816685207, lng: -84.72656249999999 },
-        max: { lat: 34.04583232505719, lng: -84.1387939453125 }
+        min: { lat: 33.801471, lng: -84.417881 },
+        max: { lat: 33.737828 , lng: -84.366383 }
     },
     boston: {
         min: { lat: 42.02889410108475, lng: -71.81488037109375 },
@@ -67,7 +67,6 @@ var MbxToken = 'pk.eyJ1IjoiZ2hvc2hrYWoiLCJhIjoiY2preTIxZXl3MGV4MDN2cWtyaTdmZmY5c
 
 if (!MbxToken) {
   console.error('Please set your Mapbox API Token: export MAPBOX_ACCESS_TOKEN=YourToken');
-  // process.exit(1);
   return queueCallback(new Error('Please set your Mapbox API Token: export MAPBOX_ACCESS_TOKEN=YourToken')); 
 }
 
@@ -85,7 +84,7 @@ function hasNoRouteFound(matrix) {
 }
 
 function routesToGeojson(routes, locations, depotIndex, geojsonCallback) {
-
+console.log(locations.length);
   var solutionFeatures = [];
   // add depot to solution file
   solutionFeatures.push(turf.point(locations[0], {
@@ -120,7 +119,7 @@ function routesToGeojson(routes, locations, depotIndex, geojsonCallback) {
       waypoints.unshift({'coordinates': locations[depotIndex]});
       waypoints.push({'coordinates': locations[depotIndex]});
 
-
+console.log('number of waypoints: ', waypoints.length);
       MbxDirectionsClient.getDirections({ waypoints, profile: profile, alternatives: false, geometries: 'geojson'}).send()
         .then(function(response) {
         var results = response.body;
@@ -160,14 +159,14 @@ function vrpSolver(locations, computeTime, queueCallback) {
 
   var points = locations.map(function (coord) { return { coordinates: coord } });
 
-  MbxMatrixClient.getMatrix({ points: points, profile: profile})
+  MbxMatrixClient.getMatrix({ points: points, profile: profile })
     .send()
     .then(function(response) {
       var results = response.body;
 
-      // 9am -- 5pm
+      // 9am -- 9pm
       var dayStarts = 0;
-      var dayEnds = 8 * 60 * 60;
+      var dayEnds = 12 * 60 * 60;
 
       var costs = results.durations;
 
@@ -218,6 +217,7 @@ function vrpSolver(locations, computeTime, queueCallback) {
         deliveries: []
       };
 
+
       var start = Date.now();
       VRP.Solve(searchOpts, function (err, result) {
         var end = Date.now();
@@ -231,42 +231,36 @@ function vrpSolver(locations, computeTime, queueCallback) {
         console.log(locations.length + ',' + computeTime  + ',' + timeTaken + ',' + result.cost);
         queueCallback();
 
-        // routesToGeojson(result.routes, locations, depotIndex, function(err, featureCollection) {
-        //   if (err) {
-        //     console.error('Error in getting directions after VRP has produced solution: ' + err.message);
-        //     return queueCallback(err);
-        //   }
-        //   fs.writeFileSync(locations.length + 'locations' + computeTime + 'ms' + '.geojson', JSON.stringify(featureCollection, null, 4));
-        //   queueCallback();
-        // });
+         routesToGeojson(result.routes, locations, depotIndex, function(err, featureCollection) {
+           if (err) {
+             console.error('Error in getting directions after VRP has produced solution: ' + err.message);
+             return queueCallback(err);
+           }
+           fs.writeFileSync(locations.length + 'locations' + computeTime + 'ms' + '.geojson', JSON.stringify(featureCollection, null, 4));
+           queueCallback();
+         });
       });
   }).catch(function(err) {
+      
     if (err) {
       console.error('Error getting matrix: ' + err.message);
        return queueCallback(err);
-      //process.exit(1);
-    }
-
-    if (hasNoRouteFound(results.durations)) {
-      console.error('Error: distance matrix is not complete');
-      // process.exit(1);
-      return queueCallback(new Error('Error: distance matrix is not complete'));
     }
   });
 }
 
 var q = d3.queue(1);
-
-for (var numLocations = 30; numLocations < 251; numLocations+=5) {
+var numLocations = 250;
+for (var numLocations = 250; numLocations > 0; numLocations-=10) {
    const CITY = process.env.City || 'atlanta';
    let bbox = bboxes[CITY];
-
    var locations = [];
    for (let i = 0; i < numLocations; i++) {
-    locations.push([Math.random() * Math.abs(bbox.max.lng - bbox.min.lng) + bbox.min.lng, Math.random() * Math.abs(bbox.max.lat - bbox.min.lat) + bbox.min.lat]);
+    locations.push([Math.trunc((Math.random() * Math.abs(bbox.max.lng - bbox.min.lng) + bbox.min.lng)*10000000)/10000000, Math.trunc((Math.random() * Math.abs(bbox.max.lat - bbox.min.lat) + bbox.min.lat)*10000000)/10000000]);
    }
+console.log(locations[0]);
 
-   for (var computeTime = 300; computeTime < 300000; computeTime+=500) {
+   for (var computeTime = 250; computeTime < 300000; computeTime+=100) {
       q.defer(vrpSolver, locations, computeTime);
    }
 }
