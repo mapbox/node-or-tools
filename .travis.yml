@@ -11,7 +11,9 @@ addons:
     packages: [ 'libstdc++-4.9-dev', 'clang-4.0' ]
 
 install:
-  - npm install
+  - mkdir -p ./third_party/mason
+  - curl -sSfL https://github.com/mapbox/mason/archive/v0.19.0.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
+  - npm install --build-from-source
 
 script:
   - npm test
@@ -31,6 +33,10 @@ matrix:
       node_js: 8
       sudo: false
       env: CC='clang-4.0' CXX='clang++-4.0'
+    - os: linux
+      node_js: 10
+      sudo: false
+      env: CC='clang-4.0' CXX='clang++-4.0'
     - os: osx
       osx_image: xcode8.2
       node_js: 4
@@ -40,3 +46,6 @@ matrix:
     - os: osx
       osx_image: xcode8.2
       node_js: 8
+    - os: osx
+      osx_image: xcode8.2
+      node_js: 10
