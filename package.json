@@ -1,6 +1,6 @@
 {
   "name": "node_or_tools",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Native module for the or-tools TSP / VRP solvers",
   "url": "https://github.com/mapbox/node-or-tools",
   "repository": {
@@ -21,7 +21,7 @@
     "test": "tap -Rspec test/*.js"
   },
   "dependencies": {
-    "nan": "^2.11.1",
+    "nan": "^2.14.2",
     "node-pre-gyp": "^0.12.0"
   },
   "devDependencies": {
