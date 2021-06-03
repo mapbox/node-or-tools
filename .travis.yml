@@ -1,10 +1,5 @@
 language: node_js
 
-env:
-  global:
-    - secure: "R7uk+cduLPmjuUyzLCyaYkApE+WNIMrmvCy9cZxGy6N0HwOGnXt8dFgiZs6xB8PkePV2Q1sq0bO6QF8PT4GnnevjQtZb/BvARJtD2VfyI7y10t/hhKkK97Cx55GKKn+4M3hADSKfIphBHe4ZvUvA5gmswDW8AoQ4Lr53/6XK1msAxUa2XZHyg1D1F8jikWmQTcgyEw+8mF0BULWaKbzRhxiOsb2u9YTvBiMph/luf/sSOC18ZDN4MMSJshSq2UTH40Sz/8/ugjEMz7gFvMq+CDmJWYA68KiCuIB0Wx+UT77xzRH1LuIBAusVnkuBvKS83EnIHPjRkZ/5CAjyo5nTLPVwFBUyT1N5Pk8Mwbpe6rmtxqPbjTa0IoM+2WPxjYTbBWcr9HhtTp/sTRdKLLMYuj9aOT+D9LLg+dYepgfFoE84EkVu0eeGxSX+/P7mvaKaWEc/4HTS3AAStzWw5fM++x6zGmy6ru6s9v1wmFq89OYCB9Wrv+MpRjrurYw3C8n/WJR6Qyh7kIu1mjLcYM61axSULe8eET1vR2sAsbvgbwyxZIHHs6Ur1gS4s0cwqALAuuotwDuDAytK5X7MNYsZkJ6dHRw9gz107+ee4HeogW6TnNIip6htaUBPR6e9HGhJrMtK61LznGxyZrfaFqbj9FuI4mat0XJci8OZmFXJn68="
-    - secure: "JV6xOo1YVqUUlsa/za7BGuYZj//y5vg7Dgcn6v0MJzF+ZxIM5maGh6iA3mhiCIUetHVwwlqjJg8ZaZ8vFcWRcx27+591xgTSJWrPhgnbqcNupDCGoexiqUUzfgOtkuDowmRp4wz2e5uUpox4Gm6gmJkEt1nUs+/gsk7fjDoChSTGgJ2eASiLgzY2Hg38iT5IiZMx//FWw0uQnYCtPR0vtGYdgT8aSMXnVSsFqvpUJBUnQj4R93eJbQiXUN6SCRpjvd536JOgd+ud+zm7QTvzmRKSgag31XDKNjD/1SK3zzhkfNL/1T7Kr3rCdluxa0RO2c3eLiN6rkjelVtFcRvj7zwJvZ2BJ5WLWILtvbvvCmNzI43v+8RandYiWm8CWxVwUt3Cw+xzG0DblO+TCT8P9DipljI5zOeEBh6Tc920zb0P45E5jnxu6oxS2sOV/K2oyFu5152JXI4u24xVxMeVd9cxOzd4Jpxn5pe/m7RPeEDTpHA28RBTjA98kysR3aUBsfF5I/IrxkT8e9XnMuAOGaVgaAzGRAjL481H8CMIkQT14hO3+jqPKcn1scgDOGxw+Ijujdix9BtVt5/pEokfXYd2KXBmgDAPTBqfgkabPDXoNv0iXDdkQVl0924s0Jq/Io1DbjIIS+zezrPOwryVBsPjRYfWsjwl9Nv1KjK+yeQ="
-
 addons:
   apt:
     sources: [ 'ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-4.0' ]
@@ -13,7 +8,13 @@ addons:
 install:
   - mkdir -p ./third_party/mason
   - curl -sSfL https://github.com/mapbox/mason/archive/v0.19.0.tar.gz | tar --gunzip --extract --strip-components=1 --directory=./third_party/mason
+  - curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci && chmod 755 ./mbx-ci
   - npm install --build-from-source
+  
+
+before_script:
+  - ./mbx-ci aws setup
+  - $(./mbx-ci aws credentials --export)
 
 script:
   - npm test
