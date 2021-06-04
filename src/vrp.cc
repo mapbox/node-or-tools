@@ -33,13 +33,6 @@ NAN_METHOD(VRP::New) try {
 
   VRPSolverParams userParams{info};
 
-  const auto bytesChange = getBytes(userParams.costs)         //
-                           + getBytes(userParams.durations)   //
-                           + getBytes(userParams.timeWindows) //
-                           + getBytes(userParams.demands);    //
-
-  Nan::AdjustExternalMemory(bytesChange);
-
   auto* self = new VRP{std::move(userParams.costs),       //
                        std::move(userParams.durations),   //
                        std::move(userParams.timeWindows), //
@@ -57,9 +50,6 @@ NAN_METHOD(VRP::Solve) try {
   auto* const self = Nan::ObjectWrap::Unwrap<VRP>(info.Holder());
 
   VRPSearchParams userParams(info);
-
-  const auto bytesChange = getBytes(userParams.routeLocks);
-  Nan::AdjustExternalMemory(bytesChange);
 
   // See routing_parameters.proto and routing_enums.proto
   auto modelParams = RoutingModel::DefaultModelParameters();

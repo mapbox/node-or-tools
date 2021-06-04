@@ -58,7 +58,24 @@ struct VRPWorker final : Nan::AsyncWorker {
 
     const auto costsOk = costs->dim() == numNodes;
     const auto durationsOk = durations->dim() == numNodes;
+
     const auto timeWindowsOk = timeWindows->size() == numNodes;
+
+    for (std::int32_t i = 0; i < timeWindows->size(); ++i) {
+      const auto& timeWindowsForLocation = timeWindows->at(i);
+      const auto numTimeWindowsForLocation = timeWindowsForLocation.size();
+
+      for (std::int32_t j = 0; j < numTimeWindowsForLocation - 1; ++j) {
+        const auto& lhs = timeWindowsForLocation.at(j + 0);
+        const auto& rhs = timeWindowsForLocation.at(j + 1);
+
+        const auto ordered = lhs.stop <= rhs.start;
+
+        if (!ordered)
+          throw std::runtime_error{"Expected multiple time windows per location to be sorted"};
+      }
+    }
+
     const auto demandsOk = demands->dim() == numNodes;
 
     if (!costsOk || !durationsOk || !timeWindowsOk || !demandsOk)
@@ -105,15 +122,31 @@ struct VRPWorker final : Nan::AsyncWorker {
     model.AddDimension(durationCallback, timeHorizon, timeHorizon, /*fix_start_cumul_to_zero=*/true, kDimensionTime);
     const auto& timeDimension = model.GetDimensionOrDie(kDimensionTime);
 
+    /*
     for (std::int32_t node = 0; node < numNodes; ++node) {
-      const auto interval = timeWindows->at(node);
-      timeDimension.CumulVar(node)->SetRange(interval.start, interval.stop);
-      // At the moment we only support a single interval for time windows.
-      // We can support multiple intervals if we sort intervals by start then stop.
-      // Then Cumulval(n)->SetRange(minStart, maxStop), then walk over intervals
-      // removing intervals between active intervals:
-      // CumulVar(n)->RemoveInterval(stop, start).
+      const auto timeWindowsForLocation = timeWindows->at(node);
+      const auto numTimeWindowsForLocation = timeWindowsForLocation.size();
+
+      if (numTimeWindowsForLocation < 1)
+        continue;
+
+      // We can support multiple intervals sorted by start then stop by
+      // enabling the interval [minStart, maxStop] then walking over all
+      // intervals and disabling ranges between adjacent time intervals.
+
+      const auto minStart = timeWindowsForLocation.at(0).start;
+      const auto maxStop = timeWindowsForLocation.at(numTimeWindowsForLocation - 1).stop;
+
+      timeDimension.CumulVar(node)->SetRange(minStart, maxStop);
+
+      for (std::int32_t i = 0; i < numTimeWindowsForLocation - 1; ++i) {
+        const auto& lhs = timeWindowsForLocation.at(i + 0);
+        const auto& rhs = timeWindowsForLocation.at(i + 1);
+
+        timeDimension.CumulVar(node)->RemoveInterval(lhs.stop, rhs.start);
+      }
     }
+    */
 
     // Capacity Dimension
 
