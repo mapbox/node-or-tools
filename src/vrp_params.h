@@ -25,7 +25,7 @@ struct VRPSearchParams {
   std::int32_t numVehicles;
   std::int32_t depotNode;
   std::int32_t timeHorizon;
-  std::int32_t vehicleCapacity;
+  std::vector<int64> vehicleCapacity;   // type changed to vector 
 
   RouteLocks routeLocks;
 
@@ -40,8 +40,8 @@ inline auto makeTimeWindowsFrom2dArray(std::int32_t n, v8::Local<v8::Array> arra
   if (n < 0)
     throw std::runtime_error{"Negative size"};
 
-  if (static_cast<std::int32_t>(array->Length()) != n)
-    throw std::runtime_error{"Array dimension do not match size"};
+  // if (static_cast<std::int32_t>(array->Length()) != n)
+  //   throw std::runtime_error{"Array dimension do not match size"};
 
   TimeWindows timeWindows(n);
 
@@ -78,8 +78,8 @@ inline auto makeRouteLocksFrom2dArray(std::int32_t n, v8::Local<v8::Array> array
   if (n < 0)
     throw std::runtime_error{"Negative size"};
 
-  if (static_cast<std::int32_t>(array->Length()) != n)
-    throw std::runtime_error{"Array dimension do not match size"};
+  // if (static_cast<std::int32_t>(array->Length()) != n)
+  //   throw std::runtime_error{"Array dimension do not match size"};
 
   // Note: use (n) for construction because RouteLocks is a weak alias to a std::vector.
   // Using vec(n) creates a vector of n items, using vec{n} creates a vector with a single element n.
@@ -130,6 +130,13 @@ VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto timeWindowsVectorOk = !maybeTimeWindowsVector.IsEmpty() && maybeTimeWindowsVector.ToLocalChecked()->IsArray();
   auto demandMatrixOk = !maybeDemandMatrix.IsEmpty() && maybeDemandMatrix.ToLocalChecked()->IsArray();
 
+
+  if(!numNodesOk ) throw std::runtime_error{"ERROR TYPE 1"};
+    else if(!costMatrixOk) throw std::runtime_error{"ERROR TYPE 2"};
+      else if(!durationMatrixOk) throw std::runtime_error{"ERROR TYPE 3"};
+        else if(!timeWindowsVectorOk) throw std::runtime_error{"ERROR TYPE 4"};
+          else if(!demandMatrixOk) throw std::runtime_error{"ERROR TYPE 5"};
+  
   if (!numNodesOk || !costMatrixOk || !durationMatrixOk || !timeWindowsVectorOk || !demandMatrixOk)
     throw std::runtime_error{"SolverOptions expects"
                              " 'numNodes' (Number),"
@@ -170,7 +177,7 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   auto numVehiclesOk = !maybeNumVehicles.IsEmpty() && maybeNumVehicles.ToLocalChecked()->IsNumber();
   auto depotNodeOk = !maybeDepotNode.IsEmpty() && maybeDepotNode.ToLocalChecked()->IsNumber();
   auto timeHorizonOk = !maybeTimeHorizon.IsEmpty() && maybeTimeHorizon.ToLocalChecked()->IsNumber();
-  auto vehicleCapacityOk = !maybeVehicleCapacity.IsEmpty() && maybeVehicleCapacity.ToLocalChecked()->IsNumber();
+  auto vehicleCapacityOk = !maybeVehicleCapacity.IsEmpty() && maybeVehicleCapacity.ToLocalChecked()->IsArray();  // IsNumber() changed to IsArray()
   auto routeLocksOk = !maybeRouteLocks.IsEmpty() && maybeRouteLocks.ToLocalChecked()->IsArray();
   auto pickupsOk = !maybePickups.IsEmpty() && maybePickups.ToLocalChecked()->IsArray();
   auto deliveriesOk = !maybeDeliveries.IsEmpty() && maybeDeliveries.ToLocalChecked()->IsArray();
@@ -192,7 +199,9 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
   numVehicles = Nan::To<std::int32_t>(maybeNumVehicles.ToLocalChecked()).FromJust();
   depotNode = Nan::To<std::int32_t>(maybeDepotNode.ToLocalChecked()).FromJust();
   timeHorizon = Nan::To<std::int32_t>(maybeTimeHorizon.ToLocalChecked()).FromJust();
-  vehicleCapacity = Nan::To<std::int32_t>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
+  //vehicleCapacity = Nan::To<std::int32_t>(maybeVehicleCapacity.ToLocalChecked()).FromJust();
+
+  
 
   auto routeLocksArray = maybeRouteLocks.ToLocalChecked().As<v8::Array>();
   routeLocks = makeRouteLocksFrom2dArray(numVehicles, routeLocksArray);
@@ -202,6 +211,10 @@ VRPSearchParams::VRPSearchParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
 
   auto deliveriesArray = maybeDeliveries.ToLocalChecked().As<v8::Array>();
   deliveries = makeVectorFromJsNumberArray<Deliveries>(deliveriesArray);
+
+  auto vehicleCapacityArray = maybeVehicleCapacity.ToLocalChecked().As<v8::Array>();
+  vehicleCapacity = makeVectorFromJsNumberArray1<std::vector<int64> >(vehicleCapacityArray);
+  // new function call added to make vehicle capacity vector  calls  function in adapter.h
 
   callback = info[1].As<v8::Function>();
 }

@@ -66,14 +66,13 @@ NAN_METHOD(TSP::Solve) try {
   const std::int32_t numNodes = self->costs->dim();
   const std::int32_t numVehicles = 1; // Always one for TSP
 
-  auto* worker = new TSPWorker{self->costs,                            //
+  auto worker = new TSPWorker{self->costs,                            //
                                new Nan::Callback{userParams.callback}, //
                                modelParams,                            //
                                searchParams,                           //
                                numNodes,                               //
                                numVehicles,                            //
                                userParams.depotNode};                  //
-  Nan::AsyncQueueWorker(worker);
 
 } catch (const std::exception& e) {
   return Nan::ThrowError(e.what());

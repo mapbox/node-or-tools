@@ -2,7 +2,7 @@
 #define NODE_OR_TOOLS_ADAPTORS_F1FF74E9681C_H
 
 #include <nan.h>
-
+#include <iostream>
 #include "types.h"
 
 // We adapt matrices and vectors for or-tools since it expects them to have specific signatures and types.
@@ -134,8 +134,27 @@ template <typename Vector> inline auto makeVectorFromJsNumberArray(v8::Local<v8:
 
     if (!num->IsNumber())
       throw std::runtime_error{"Expected array element of types Number"};
-
+      //std::cout<<"hello"<<std::endl;
     vec.at(atIdx) = Nan::To<std::int32_t>(num).FromJust();
+  }
+
+  return vec;
+}
+
+// our function for changing js array into  vector of long long int
+
+template <typename Vector> inline auto makeVectorFromJsNumberArray1(v8::Local<v8::Array> array) {
+  const int64 len = array->Length();
+
+  Vector vec(len);
+
+  for (int64 atIdx = 0; atIdx < len; ++atIdx) {
+    auto num = Nan::Get(array, atIdx).ToLocalChecked();
+
+    if (!num->IsNumber())
+      throw std::runtime_error{"Expected array element of types Number"};
+      //std::cout<<"hello"<<std::endl;
+    vec.at(atIdx) = Nan::To<int64_t>(num).FromJust();
   }
 
   return vec;
