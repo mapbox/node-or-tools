@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "nan": "^2.14.2",
-    "node-pre-gyp": "^0.12.0"
+    "@mapbox/node-pre-gyp": "^1.0.9"
   },
   "devDependencies": {
-    "aws-sdk": "^2.42.0",
-    "tap": "^12.0.1"
+    "aws-sdk": "^2.1209.0",
+    "tap": "^16.3.0"
   },
   "binary": {
     "module_name": "node_or_tools",
