@@ -21,7 +21,7 @@
     "test": "tap -Rspec test/*.js"
   },
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.9",
+    "@mapbox/node-pre-gyp": "^1.0.10",
     "nan": "^2.14.2"
   },
   "devDependencies": {
