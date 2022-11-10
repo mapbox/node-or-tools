@@ -111,7 +111,14 @@ tap.test('Test VRP', function(assert) {
 
   var numVehicles = 10;
   var timeHorizon = dayEnds - dayStarts;
-  var vehicleCapacity = 10;
+
+  //vehicle capacity array 
+  var vehicleCapacity = new Array(numVehicles);
+  for (var i = 0; i < numVehicles; i++) {
+    
+        vehicleCapacity[i]=10;
+  }
+  
 
   // Dummy lock to let vehicle 0 go to location 2 and 3 first - to test route locks
   var routeLocks = new Array(numVehicles);
