@@ -34,9 +34,6 @@ NAN_METHOD(TSP::New) try {
 
   TSPSolverParams userParams{info};
 
-  const auto bytesChange = getBytes(userParams.costs);
-  Nan::AdjustExternalMemory(bytesChange);
-
   auto* self = new TSP{std::move(userParams.costs)};
 
   self->Wrap(info.This());

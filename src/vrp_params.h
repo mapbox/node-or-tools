@@ -35,8 +35,8 @@ struct VRPSearchParams {
   v8::Local<v8::Function> callback;
 };
 
-// Caches user provided 2d Array of [Number, Number] into Vectors of Intervals
-inline auto makeTimeWindowsFrom2dArray(std::int32_t n, v8::Local<v8::Array> array) {
+// Caches user provided 3d Array of [[Number, Number], ..] into Vectors of Vectors of Intervals
+inline auto makeTimeWindowsFrom3dArray(std::int32_t n, v8::Local<v8::Array> array) {
   if (n < 0)
     throw std::runtime_error{"Negative size"};
 
@@ -45,29 +45,41 @@ inline auto makeTimeWindowsFrom2dArray(std::int32_t n, v8::Local<v8::Array> arra
 
   TimeWindows timeWindows(n);
 
-  for (std::int32_t atIdx = 0; atIdx < n; ++atIdx) {
-    auto inner = Nan::Get(array, atIdx).ToLocalChecked();
+  for (std::int32_t locationIdx = 0; locationIdx < n; ++locationIdx) {
+    auto timeWindowsForLocation = Nan::Get(array, locationIdx).ToLocalChecked();
 
-    if (!inner->IsArray())
+    if (!timeWindowsForLocation->IsArray())
       throw std::runtime_error{"Expected Array of Arrays"};
 
-    auto innerArray = inner.As<v8::Array>();
+    auto timeWindowsForLocationArray = timeWindowsForLocation.As<v8::Array>();
+    const auto numTimeWindowsForLocation = static_cast<std::int32_t>(timeWindowsForLocationArray->Length());
 
-    if (static_cast<std::int32_t>(innerArray->Length()) != 2)
-      throw std::runtime_error{"Expected interval Array of shape [start, stop]"};
+    Vector<Interval> locationTimeWindows(numTimeWindowsForLocation);
 
-    auto start = Nan::Get(innerArray, 0).ToLocalChecked();
-    auto stop = Nan::Get(innerArray, 1).ToLocalChecked();
+    for (std::int32_t timeWindowIdx = 0; timeWindowIdx < numTimeWindowsForLocation; ++timeWindowIdx) {
+      auto interval = Nan::Get(timeWindowsForLocationArray, timeWindowIdx).ToLocalChecked();
 
-    if (!start->IsNumber() || !stop->IsNumber())
-      throw std::runtime_error{"Expected interval start and stop of type Number"};
+      if (!interval->IsArray())
+        throw std::runtime_error{"Expected Array of time interval Arrays"};
 
-    auto startValue = Nan::To<std::int32_t>(start).FromJust();
-    auto stopValue = Nan::To<std::int32_t>(stop).FromJust();
+      auto intervalArray = interval.As<v8::Array>();
 
-    Interval out{startValue, stopValue};
+      if (intervalArray->Length() != 2)
+        throw std::runtime_error{"Expected interval Array of shape [start, stop]"};
 
-    timeWindows.at(atIdx) = std::move(out);
+      auto start = Nan::Get(intervalArray, 0).ToLocalChecked();
+      auto stop = Nan::Get(intervalArray, 1).ToLocalChecked();
+
+      if (!start->IsNumber() || !stop->IsNumber())
+        throw std::runtime_error{"Expected interval start and stop of type Number"};
+
+      auto startValue = Nan::To<std::int32_t>(start).FromJust();
+      auto stopValue = Nan::To<std::int32_t>(stop).FromJust();
+
+      locationTimeWindows.at(timeWindowIdx) = Interval{startValue, stopValue};
+    }
+
+    timeWindows.at(locationIdx) = std::move(locationTimeWindows);
   }
 
   return timeWindows;
@@ -147,7 +159,7 @@ VRPSolverParams::VRPSolverParams(const Nan::FunctionCallbackInfo<v8::Value>& inf
 
   costs = makeMatrixFrom2dArray<CostMatrix>(numNodes, costMatrix);
   durations = makeMatrixFrom2dArray<DurationMatrix>(numNodes, durationMatrix);
-  timeWindows = makeTimeWindowsFrom2dArray(numNodes, timeWindowsVector);
+  timeWindows = makeTimeWindowsFrom3dArray(numNodes, timeWindowsVector);
   demands = makeMatrixFrom2dArray<DemandMatrix>(numNodes, demandMatrix);
 }
 
