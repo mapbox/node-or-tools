@@ -1,6 +1,6 @@
 {
   "name": "node_or_tools",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Native module for the or-tools TSP / VRP solvers",
   "url": "https://github.com/mapbox/node-or-tools",
   "repository": {
